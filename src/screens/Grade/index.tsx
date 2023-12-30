@@ -14,11 +14,19 @@ import {
 import {StackScreenProps} from '@react-navigation/stack';
 import {StackNavigationParams} from '../../components/navigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import db from '../../utils/db';
+import {useDispatch} from 'react-redux';
 
 type Props = StackScreenProps<StackNavigationParams, 'grade'>;
 const Grade: React.FC<Props> = ({navigation}) => {
+  const dispatch = useDispatch();
   const getGrade = async (type: string) => {
     await AsyncStorage.setItem('grade', type);
+    const data = await db(type);
+    dispatch({
+      type: 'sightwords/getDataFromdb',
+      payload: data,
+    });
     navigation.reset({index: 0, routes: [{name: 'home'}]});
   };
   return (
