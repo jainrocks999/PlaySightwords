@@ -29,7 +29,7 @@ const Home: React.FC<Props> = ({navigation}) => {
             keyExtractor={item => item.id}
             renderItem={({item, index}) => (
               <TouchableOpacity
-                onPress={() => navigation.navigate('word')}
+                onPress={() => navigation.navigate('bingo')}
                 style={styles.listImage}>
                 <Image
                   style={styles.image}

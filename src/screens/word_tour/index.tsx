@@ -27,6 +27,7 @@ const Word: React.FC<Props> = ({navigation}) => {
   const data = useSelector((state: rootState) => state.data.dbData);
   const [count, setCount] = useState(0);
   const [words, setWords] = useState(data[0].Word);
+  const [newWord, setNewWord] = useState('');
   const [music, setMusic] = useState<music[]>([]);
   const [timeouts, setTimeouts] = useState<any[]>([]);
   useEffect(() => {
@@ -36,7 +37,20 @@ const Word: React.FC<Props> = ({navigation}) => {
     timeouts.forEach((timeoutId: any) => clearTimeout(timeoutId));
     setTimeouts([]);
   };
+  const loop = (wordToShow: string, characters: string[]) => {
+    clearAllTimeouts();
+    let newTimeouts: any[] = [];
+    characters.forEach((item, index) => {
+      const timeoutId = setTimeout(() => {
+        wordToShow += item;
+        setWords(wordToShow);
+      }, index * 1000);
+      newTimeouts.push(timeoutId);
+    });
+    setTimeouts(newTimeouts);
+  };
   const playsound = async (arr: music[], characters: string[]) => {
+    clearAllTimeouts();
     await TrackPlayer.reset();
     await TrackPlayer.add([arr[0]]);
     await TrackPlayer.play();
@@ -44,18 +58,10 @@ const Word: React.FC<Props> = ({navigation}) => {
     await TrackPlayer.reset();
     await TrackPlayer.add([arr[1]]);
     await TrackPlayer.play();
-    clearAllTimeouts();
     let wordToShow = '';
-    const newTimeouts: any[] = [];
-    for (let i = 0; i < characters.length; i++) {
-      const timeoutId = setTimeout(() => {
-        wordToShow += characters[i];
-        setWords(wordToShow);
-      }, i * 1000);
-      newTimeouts.push(timeoutId);
-    }
-    setTimeouts(newTimeouts);
+    loop(wordToShow, characters);
   };
+
   const showData = async () => {
     try {
       clearAllTimeouts();
@@ -122,6 +128,7 @@ const Word: React.FC<Props> = ({navigation}) => {
       <View style={styles.btncontainer}>
         <TouchableOpacity
           onPress={() => {
+            loop('', []);
             setCount(count - 1);
           }}
           disabled={count == 0 ? true : false}
@@ -129,12 +136,18 @@ const Word: React.FC<Props> = ({navigation}) => {
           <Image
             style={styles.btn}
             resizeMode="contain"
-            source={require('../../asset/images/lftbtn.png')}
+            source={
+              count <= 0
+                ? require('../../asset/images/leftdisable.png')
+                : require('../../asset/images/lftbtn.png')
+            }
           />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
-            playsound(music, [...words]);
+            loop('', []);
+            setWords(newWord);
+            playsound(music, [...newWord]);
           }}
           style={styles.singleBtncontainer2}>
           <Image
@@ -145,15 +158,20 @@ const Word: React.FC<Props> = ({navigation}) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
+            loop('', []);
             setCount(count + 1);
-            clearAllTimeouts();
           }}
           disabled={count + 1 == data.length ? true : false}
+          //rightbtns
           style={styles.singleBtncontainer}>
           <Image
             style={styles.btn}
             resizeMode="contain"
-            source={require('../../asset/images/rightbtn.png')}
+            source={
+              count + 1 == data.length
+                ? require('../../asset/images/rightbtns.png')
+                : require('../../asset/images/rightbtn.png')
+            }
           />
         </TouchableOpacity>
       </View>
