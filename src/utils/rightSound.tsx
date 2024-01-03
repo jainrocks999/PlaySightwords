@@ -1,0 +1,58 @@
+export default [
+  {
+    url: require('../asset/sounds/youareawesome.wav'), //`asset:/files/clickon.mp3`,
+    title: 'youareawesome',
+    artist: 'eFlashApps',
+    artwork: `asset:/files/youareawesome.wav`,
+    duration: 0,
+  },
+  {
+    url: require('../asset/sounds/spectacular.wav'), //`asset:/files/clickon.mp3`,
+    title: 'spectacular',
+    artist: 'eFlashApps',
+    artwork: `asset:/files/spectacular.wav`,
+    duration: 0,
+  },
+  {
+    url: require('../asset/sounds/sensational.wav'), //`asset:/files/clickon.mp3`,
+    title: 'sensational',
+    artist: 'eFlashApps',
+    artwork: `asset:/files/sensational.wav`,
+    duration: 0,
+  },
+  {
+    url: require('../asset/sounds/great.wav'), //`asset:/files/clickon.mp3`,
+    title: 'great',
+    artist: 'eFlashApps',
+    artwork: `asset:/files/great.wav`,
+    duration: 0,
+  },
+  {
+    url: require('../asset/sounds/goodjob.wav'), //`asset:/files/clickon.mp3`,
+    title: 'goodjob',
+    artist: 'eFlashApps',
+    artwork: `asset:/files/goodjob.wav`,
+    duration: 0,
+  },
+  {
+    url: require('../asset/sounds/goodanswer.wav'), //`asset:/files/clickon.mp3`,
+    title: 'goodanswer',
+    artist: 'eFlashApps',
+    artwork: `asset:/files/goodanswer.wav`,
+    duration: 0,
+  },
+  {
+    url: require('../asset/sounds/clapping.mp3'), //`asset:/files/clickon.mp3`,
+    title: 'clapping',
+    artist: 'eFlashApps',
+    artwork: `asset:/files/clapping.mp3`,
+    duration: 0,
+  },
+  {
+    url: require('../asset/sounds/bravo.wav'), //`asset:/files/clickon.mp3`,
+    title: 'bravo',
+    artist: 'eFlashApps',
+    artwork: `asset:/files/bravo.wav`,
+    duration: 0,
+  },
+];

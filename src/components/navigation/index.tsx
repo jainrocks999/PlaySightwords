@@ -8,6 +8,7 @@ import Find from '../../screens/find_shoot';
 import Memory from '../../screens/memory_game';
 import Bingo from '../../screens/bingo_game';
 import Practice from '../../screens/practice_words';
+import Setting from '../../screens/seetings';
 export type StackNavigationParams = {
   splash: undefined;
   home: undefined;
@@ -17,6 +18,7 @@ export type StackNavigationParams = {
   memory: undefined;
   bingo: undefined;
   practice: undefined;
+  setting: undefined;
 };
 const Navigation = () => {
   const Stack = createStackNavigator<StackNavigationParams>();
@@ -32,6 +34,8 @@ const Navigation = () => {
         <Stack.Screen name="memory" component={Memory} />
         <Stack.Screen name="bingo" component={Bingo} />
         <Stack.Screen name="practice" component={Practice} />
+        <Stack.Screen name="setting" component={Setting} />
+        <Stack.Screen name="find" component={Find} />
       </Stack.Navigator>
     </NavigationContainer>
   );

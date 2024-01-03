@@ -10,8 +10,6 @@ import Header from '../../components/Header';
 import styles from './styles';
 import {FlatList} from 'react-native-gesture-handler';
 import homedata from '../../utils/homedata';
-import {useSelector} from 'react-redux';
-import type {rootState} from '../../redux';
 import type {StackScreenProps} from '@react-navigation/stack';
 import type {StackNavigationParams} from '../../components/navigation';
 type Props = StackScreenProps<StackNavigationParams, 'home'>;
@@ -22,14 +20,14 @@ const Home: React.FC<Props> = ({navigation}) => {
         style={styles.backImage}
         source={require('../../asset/images/newmainbg.png')}
         resizeMode="stretch">
-        <Header />
+        <Header page="" />
         <View style={styles.imagescontainer}>
           <FlatList
             data={homedata}
             keyExtractor={item => item.id}
             renderItem={({item, index}) => (
               <TouchableOpacity
-                onPress={() => navigation.navigate('bingo')}
+                onPress={() => navigation.navigate(item.page)}
                 style={styles.listImage}>
                 <Image
                   style={styles.image}

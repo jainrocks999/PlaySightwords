@@ -4,14 +4,21 @@ import {
   heightPercent as hp,
   widthPrecent as wp,
 } from '../../utils/ResponsiveScreen';
+type props = {
+  page: string;
+};
 
-const Header = () => {
+const Header: React.FC<props> = ({page}) => {
   return (
     <View style={styles.container}>
       <View style={styles.headerItem}>
         <Image
           style={styles.icon}
-          source={require('../../asset/images/musicon.png')}
+          source={
+            page == 'find'
+              ? require('../../asset/images/settings.png')
+              : require('../../asset/images/musicon.png')
+          }
           resizeMode="contain"
         />
       </View>
@@ -24,8 +31,16 @@ const Header = () => {
       </View>
       <View style={styles.headerItem}>
         <Image
-          style={[styles.icon, {marginRight: wp(2)}]}
-          source={require('../../asset/images/settings.png')}
+          style={[
+            styles.icon,
+            {marginRight: wp(2)},
+            page == 'find' ? {height: hp(5), width: wp(18)} : null,
+          ]}
+          source={
+            page == 'find'
+              ? require('../../asset/images/easy.png')
+              : require('../../asset/images/settings.png')
+          }
           resizeMode="contain"
         />
       </View>

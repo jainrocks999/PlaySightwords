@@ -1,6 +1,6 @@
-export type dbData = Root[];
+export type dbData = dbItem[];
 
-export interface Root {
+export interface dbItem {
   Color: any;
   Grade: string;
   ID: number;

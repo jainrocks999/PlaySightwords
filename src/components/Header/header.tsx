@@ -1,6 +1,5 @@
 import {View, Text, Image, StyleSheet} from 'react-native';
 import React from 'react';
-import styles from './styles';
 import {
   widthPrecent as wp,
   heightPercent as hp,
@@ -35,3 +34,22 @@ const Header = () => {
 };
 
 export default Header;
+const styles = StyleSheet.create({
+  headercontainer: {
+    paddingHorizontal: wp(2),
+    paddingTop: hp(2),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerItem: {
+    justifyContent: 'center',
+    height: hp(6),
+    width: '33%',
+  },
+  icon: {
+    height: '100%',
+    width: hp(6),
+    alignSelf: 'flex-start',
+  },
+});

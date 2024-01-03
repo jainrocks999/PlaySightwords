@@ -9,12 +9,13 @@ import {
 import styles from './styles';
 import type {StackScreenProps} from '@react-navigation/stack';
 import {StackNavigationParams} from '../../components/navigation';
-import Header from './header';
+import Header from '../../components/Header/header';
 import {widthPrecent as wp} from '../../utils/ResponsiveScreen';
 import {useSelector} from 'react-redux';
 import {rootState} from '../../redux';
 import TrackPlayer from 'react-native-track-player';
 import {setupPlayer} from '../../utils/Setup';
+import player from '../../utils/player';
 type Props = StackScreenProps<StackNavigationParams, 'word'>;
 type music = {
   url: string;
@@ -51,13 +52,9 @@ const Word: React.FC<Props> = ({navigation}) => {
   };
   const playsound = async (arr: music[], characters: string[]) => {
     clearAllTimeouts();
-    await TrackPlayer.reset();
-    await TrackPlayer.add([arr[0]]);
-    await TrackPlayer.play();
+    await player([arr[0]]);
     await delay(1700);
-    await TrackPlayer.reset();
-    await TrackPlayer.add([arr[1]]);
-    await TrackPlayer.play();
+    await player([arr[1]]);
     let wordToShow = '';
     loop(wordToShow, characters);
   };
@@ -86,6 +83,7 @@ const Word: React.FC<Props> = ({navigation}) => {
       const arr = [music, spelling];
       setMusic(arr);
       setWords(word);
+      setNewWord(word);
       if (isSetup) {
         playsound(arr, [...word]);
       }
