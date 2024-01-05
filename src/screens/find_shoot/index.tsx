@@ -19,21 +19,16 @@ import {setupPlayer} from '../../utils/Setup';
 import TrackPlayer, {AddTrack} from 'react-native-track-player';
 import rightSound from '../../utils/rightSound';
 import player from '../../utils/player';
+import pickRandomOptions from '../../utils/randomotions';
 type Props = StackScreenProps<StackNavigationParams, 'find'>;
-const Find: React.FC<Props> = () => {
+const Find: React.FC<Props> = ({navigation}) => {
   const data = useSelector((state: rootState) => state.data.dbData);
-  const pickRandomOptions = (array: any, lenght: number) => {
-    let randomArray: any = [];
-    for (let i = 0; i < lenght; i++) {
-      const randomIndex = Math.floor(Math.random() * array.length);
-      randomArray.push(array[randomIndex]);
-    }
-    return randomArray;
-  };
+
   const [pickImage, setPickImage] = useState('');
   const [rightAns, setRightAns] = useState(-1);
+  const [isHard, setIsHard] = useState(false);
   const [options, setOptions] = useState<dbData>(
-    pickRandomOptions([...data], 3),
+    pickRandomOptions([...data], isHard ? 5 : 3),
   );
   const delay = (ms: number) => {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -87,7 +82,7 @@ const Find: React.FC<Props> = () => {
       setPickImage(require('../../asset/images/bang.png'));
       await player(pickRandomOptions(rightSound, 5)[3]);
       await delay(3000);
-      let remdomData = pickRandomOptions([...data], 3);
+      let remdomData = pickRandomOptions([...data], isHard ? 5 : 3);
       setOptions(remdomData);
       setPickImage('');
     } else {
@@ -98,16 +93,26 @@ const Find: React.FC<Props> = () => {
     }
   };
 
-  useEffect(() => {
-    askQuestion([...options]);
-  }, [options]);
+  // useEffect(() => {
+  //   askQuestion([...options]);
+  // }, [options]);
 
   return (
     <ImageBackground
       source={require('../../asset/images/a5.png')}
       style={styles.container}
       resizeMode="stretch">
-      <Header page="find" />
+      <Header
+        page="find"
+        onLeftPress={() => {
+          setOptions(pickRandomOptions([...data], !isHard ? 5 : 3));
+          setIsHard(!isHard);
+        }}
+        onRightPress={() => {
+          navigation.navigate('setting');
+        }}
+        onCenterPress={() => null}
+      />
       <View style={styles.listContainer}>
         {pickImage != '' ? (
           <Image resizeMode="contain" style={styles.image} source={pickImage} />
@@ -115,30 +120,27 @@ const Find: React.FC<Props> = () => {
         <FlatList
           data={options}
           keyExtractor={item => item.ID.toString()}
+          numColumns={2}
           renderItem={({item, index}) => (
-            <TouchableOpacity
-              onPress={() => presseOption(index, [...options])}
+            <View
               style={[
-                styles.cloudContainer,
-                index == 0
-                  ? {
-                      marginRight: wp(35),
-                    }
-                  : index == 1
-                  ? {
-                      marginLeft: wp(10),
-                    }
-                  : {
-                      marginLeft: wp(0),
-                    },
+                styles.somecontainer,
+                {
+                  top: index % 2 == 1 ? wp(20) : 0,
+                  left: index % 2 == 0 ? wp(6) : 0,
+                },
               ]}>
-              <ImageBackground
-                style={styles.cloud}
-                resizeMode="stretch"
-                source={require('../../asset/images/whitecloud.png')}>
-                <Text style={styles.txt}>{item.Word}</Text>
-              </ImageBackground>
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => presseOption(index, [...options])}
+                style={[styles.cloudContainer]}>
+                <ImageBackground
+                  style={styles.cloud}
+                  resizeMode="stretch"
+                  source={require('../../asset/images/whitecloud.png')}>
+                  <Text style={styles.txt}>{item.Word}</Text>
+                </ImageBackground>
+              </TouchableOpacity>
+            </View>
           )}
         />
       </View>

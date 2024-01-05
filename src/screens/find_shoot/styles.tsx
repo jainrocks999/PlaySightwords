@@ -9,13 +9,19 @@ export default StyleSheet.create({
     flex: 1,
   },
   listContainer: {
-    paddingLeft: wp(20),
+    width: '100%',
+    alignItems: 'center',
+  },
+  somecontainer: {
+    height: hp(20),
+    width: wp(48),
   },
   cloudContainer: {
-    height: hp(13),
-    width: wp(60),
-
-    marginTop: hp(5),
+    height: hp(10),
+    width: '100%',
+    position: 'absolute',
+    marginTop: wp(3),
+    zIndex: 1,
   },
   txt: {
     fontSize: wp(8),

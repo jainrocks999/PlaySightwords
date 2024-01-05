@@ -12,7 +12,7 @@ export default [
   },
   {
     id: '3',
-    path: require(`${loaction}memorygames.png`),
+    path: require(`${loaction}memorygame.png`),
     page: 'memory',
   },
   {

@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   ImageBackground,
   Text,
@@ -16,22 +17,13 @@ import {FlatList} from 'react-native-gesture-handler';
 import {dbData, dbItem} from '../../types';
 import player from '../../utils/player';
 import rightSound from '../../utils/rightSound';
+import pickRandomOptions from '../../utils/randomotions';
 type Props = StackScreenProps<StackNavigationParams, 'memory'>;
 
-const Memory: React.FC<Props> = () => {
+const Memory: React.FC<Props> = ({navigation}) => {
   const data = useSelector((state: rootState) => state.data.dbData);
-  const pickRandomOptions = (array: any, length: number) => {
-    const newArray = [...array];
-    let randomArray: any[] = [];
+  console.log('thiss is from ', JSON.stringify(data));
 
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * newArray.length);
-      const selectedElement = newArray.splice(randomIndex, 1)[0];
-      randomArray.push(selectedElement);
-    }
-
-    return randomArray;
-  };
   const delay = (ms: number) => {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
@@ -102,7 +94,18 @@ const Memory: React.FC<Props> = () => {
       style={styles.container}
       resizeMode="stretch"
       source={require('../../asset/images/a1.png')}>
-      <Header page="find" />
+      <Header
+        page="find"
+        onLeftPress={() => {
+          navigation.navigate('setting');
+        }}
+        onRightPress={() => {
+          Alert.alert('something');
+        }}
+        onCenterPress={() => {
+          null;
+        }}
+      />
       <View style={styles.cardContainer}>
         <FlatList
           data={options}
