@@ -9,6 +9,7 @@ import Memory from '../../screens/memory_game';
 import Bingo from '../../screens/bingo_game';
 import Practice from '../../screens/practice_words';
 import Setting from '../../screens/seetings';
+import {useDispatch} from 'react-redux';
 export type StackNavigationParams = {
   splash: undefined;
   home: undefined;
@@ -21,9 +22,17 @@ export type StackNavigationParams = {
   setting: undefined;
 };
 const Navigation = () => {
+  const dispatch = useDispatch();
   const Stack = createStackNavigator<StackNavigationParams>();
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      onStateChange={state => {
+        const name = state?.routes[state.index].name;
+        dispatch({
+          type: 'sightwords/setPageChange',
+          payload: name,
+        });
+      }}>
       <Stack.Navigator
         screenOptions={{headerShown: false}}
         initialRouteName="splash">

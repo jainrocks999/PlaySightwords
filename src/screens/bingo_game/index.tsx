@@ -6,12 +6,14 @@ import {
   Text,
   TouchableOpacity,
   Button,
+  AppState,
+  AppStateStatus,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
 import {StackNavigationParams} from '../../components/navigation';
 import styles from './styles';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {rootState} from '../../redux';
 import randomotions from '../../utils/randomotions';
 import Header from '../../components/Header';
@@ -23,8 +25,11 @@ import rightSound from '../../utils/rightSound';
 
 import FastImage from 'react-native-fast-image';
 import TrackPlayer from 'react-native-track-player';
+import resetPlayer from '../../utils/resetPlayer';
 type Props = StackScreenProps<StackNavigationParams, 'bingo'>;
 const Bingo: React.FC<Props> = ({navigation}) => {
+  const page = useSelector((state: rootState) => state.data.page);
+  const backSound = useSelector((state: rootState) => state.data.backSound);
   const [seconds, setSeconds] = useState(0);
   const data = useSelector((state: rootState) => state.data.dbData);
   const [options, setOptions] = useState<dbData>(randomotions(data, 16));
@@ -251,7 +256,9 @@ const Bingo: React.FC<Props> = ({navigation}) => {
     setIncorrect(0);
     setSeconds(0);
   };
-
+  useEffect(() => {
+    !backSound.bingo ? repeate(rightAns) : null;
+  }, [backSound]);
   useEffect(() => {
     const interval = setInterval(async () => {
       setSeconds(prev => prev + 1);
@@ -299,21 +306,52 @@ const Bingo: React.FC<Props> = ({navigation}) => {
     await delay(3500);
     setshow(false);
   };
+  const dispatch = useDispatch();
+  const appState = useRef(AppState.currentState);
+  useEffect(() => {
+    const handleStateChange = async (nextState: AppStateStatus) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextState == 'active'
+      ) {
+        if (page == 'bingo') {
+          repeate(rightAns);
+        }
+      }
+      appState.current = nextState;
+      if (appState.current === 'background') {
+        await resetPlayer();
+      }
+    };
+    const unsubscribe = AppState.addEventListener('change', handleStateChange);
 
+    return () => {
+      unsubscribe.remove();
+    };
+  }, []);
   return (
     <ImageBackground
       style={styles.container}
       source={require('../../asset/images/testbg.png')}
       resizeMode="stretch">
       <Header
+        isMuted
         onCenterPress={() => {
           repeate(rightAns);
         }}
-        onLeftPress={() => {
+        onLeftPress={async () => {
+          await TrackPlayer.reset();
+          dispatch({
+            type: 'sightwords/backSound',
+            payload: {...backSound, bingo: true},
+          });
           navigation.navigate('setting');
         }}
+        isHard={false}
+        disabled={false}
         onRightPress={async () => {
           await TrackPlayer.reset();
+
           navigation.reset({index: 0, routes: [{name: 'home'}]});
         }}
         page="bingo"

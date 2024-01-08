@@ -24,6 +24,10 @@ const Splash: React.FC<Props> = ({navigation}) => {
       type: 'sightwords/getDataFromdb',
       payload: data,
     });
+    dispatch({
+      type: 'sightwords/setGrade',
+      payload: grade,
+    });
     navigation.reset({
       index: 0,
       routes: [{name: grade == null ? 'grade' : 'home'}],

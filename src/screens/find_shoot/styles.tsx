@@ -11,6 +11,7 @@ export default StyleSheet.create({
   listContainer: {
     width: '100%',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   somecontainer: {
     height: hp(20),
@@ -40,19 +41,36 @@ export default StyleSheet.create({
     height: hp(55),
     width: wp(100),
     alignSelf: 'center',
-    borderWidth: 1,
   },
   boy: {
-    height: hp(30),
+    height: hp(25),
     position: 'absolute',
     bottom: hp(5),
     left: wp(5),
   },
   home: {
+    height: '100%',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  homeBtn: {
     position: 'absolute',
     right: wp(-2),
-    bottom: hp(16.2),
-    height: hp(15),
+    bottom: hp(15.8),
+    height: hp(12),
+    width: wp(35),
+  },
+  btn: {
+    height: hp(6),
     width: wp(40),
+    alignSelf: 'flex-end',
+    marginRight: wp(2),
+  },
+  btn2: {
+    alignSelf: 'center',
+    marginRight: wp(2),
+    height: wp(16),
+    width: wp(16),
   },
 });

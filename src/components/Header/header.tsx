@@ -4,24 +4,42 @@ import {
   widthPrecent as wp,
   heightPercent as hp,
 } from '../../utils/ResponsiveScreen';
-
-const Header = () => {
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import {
+  NavigationAction,
+  NavigationProp,
+  RouteProp,
+  useNavigation,
+} from '@react-navigation/native';
+import {StackNavigationParams} from '../navigation';
+type prop = {
+  onLeftPress: () => void;
+  onRightPress: () => void;
+  practice: boolean;
+};
+const Header: React.FC<prop> = ({onLeftPress, onRightPress, practice}) => {
+  const navigation =
+    useNavigation<NavigationProp<StackNavigationParams, 'home'>>();
   return (
     <View style={styles.headercontainer}>
-      <View style={styles.headerItem}>
+      <TouchableOpacity onPress={onLeftPress} style={styles.headerItem}>
         <Image
           style={styles.icon}
           source={require('../../asset/images/settings.png')}
           resizeMode="contain"
         />
-      </View>
-      <View style={styles.headerItem}>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={onRightPress} style={styles.headerItem}>
         <Image
           style={[styles.icon, {alignSelf: 'center'}]}
-          source={require('../../asset/images/redbtn.png')}
+          source={
+            practice
+              ? require('../../asset/images/redbtn.png')
+              : require('../../asset/images/whitebtn.png')
+          }
           resizeMode="contain"
         />
-      </View>
+      </TouchableOpacity>
       <View style={styles.headerItem}>
         {/* <Image
           style={[styles.icon, {marginRight: wp(2)}]}
@@ -45,7 +63,7 @@ const styles = StyleSheet.create({
   headerItem: {
     justifyContent: 'center',
     height: hp(6),
-    width: '33%',
+    width: '0%',
   },
   icon: {
     height: '100%',

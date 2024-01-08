@@ -24,6 +24,10 @@ const Grade: React.FC<Props> = ({navigation}) => {
     await AsyncStorage.setItem('grade', type);
     const data = await db(type);
     dispatch({
+      type: 'sightwords/setGrade',
+      payload: type,
+    });
+    dispatch({
       type: 'sightwords/getDataFromdb',
       payload: data,
     });

@@ -1,15 +1,21 @@
 import {Image, StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   heightPercent as hp,
   widthPrecent as wp,
 } from '../../utils/ResponsiveScreen';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useSelector} from 'react-redux';
+import {rootState} from '../../redux';
 type props = {
   page: string;
+  isHard: boolean;
+  disabled: boolean;
   onLeftPress: () => void;
   onRightPress: () => void;
   onCenterPress: () => void;
+  isMuted: boolean;
 };
 
 const Header: React.FC<props> = ({
@@ -17,7 +23,14 @@ const Header: React.FC<props> = ({
   onLeftPress,
   onRightPress,
   onCenterPress,
+  isHard,
+  disabled,
+  isMuted,
 }) => {
+  const grade = useSelector((state: rootState) => state.data.grade) as
+    | 'tblWord'
+    | 'tblWordG2'
+    | string;
   return (
     <View style={[styles.container, {paddingTop: hp(3)}]}>
       <TouchableOpacity onPress={onLeftPress} style={styles.headerItem}>
@@ -28,18 +41,25 @@ const Header: React.FC<props> = ({
               ? require('../../asset/images/settings.png')
               : page == 'bingo'
               ? require('../../asset/images/settings.png')
-              : require('../../asset/images/musicon.png')
+              : isMuted
+              ? require('../../asset/images/musicon.png')
+              : require('../../asset/images/musicoff.png')
           }
           resizeMode="contain"
         />
       </TouchableOpacity>
-      <TouchableOpacity onPress={onCenterPress} style={styles.headerItem}>
+      <TouchableOpacity
+        onPress={onCenterPress}
+        disabled={disabled}
+        style={styles.headerItem}>
         <Image
           style={[page == 'bingo' ? styles.reapeate : styles.title]}
           source={
             page == 'bingo'
               ? require('../../asset/images/repeatbingo.png')
-              : require('../../asset/images/nprimary.png')
+              : grade == 'tblWord'
+              ? require('../../asset/images/nprimary.png') //npreprimary
+              : require('../../asset/images/npreprimary.png')
           }
           resizeMode="contain"
         />
@@ -60,7 +80,9 @@ const Header: React.FC<props> = ({
           ]}
           source={
             page == 'find'
-              ? require('../../asset/images/easy.png')
+              ? !isHard
+                ? require('../../asset/images/easy.png')
+                : require('../../asset/images/hard.png')
               : page == 'bingo'
               ? require('../../asset/images/hmbtnbingo.png')
               : require('../../asset/images/settings.png')

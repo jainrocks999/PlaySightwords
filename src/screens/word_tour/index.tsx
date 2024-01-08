@@ -1,21 +1,26 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
   ImageBackground,
   Image,
   TouchableOpacity,
+  AppState,
+  AppStateStatus,
 } from 'react-native';
 import styles from './styles';
 import type {StackScreenProps} from '@react-navigation/stack';
 import {StackNavigationParams} from '../../components/navigation';
 import Header from '../../components/Header/header';
 import {widthPrecent as wp} from '../../utils/ResponsiveScreen';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {rootState} from '../../redux';
 import TrackPlayer from 'react-native-track-player';
 import {setupPlayer} from '../../utils/Setup';
 import player from '../../utils/player';
+import resetPlayer from '../../utils/resetPlayer';
+import {dbData, dbItem} from '../../types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 type Props = StackScreenProps<StackNavigationParams, 'word'>;
 type music = {
   url: string;
@@ -25,7 +30,10 @@ type music = {
   duration: number;
 };
 const Word: React.FC<Props> = ({navigation}) => {
+  const grade = useSelector((state: rootState) => state.data.grade);
+  const page = useSelector((state: rootState) => state.data.page);
   const data = useSelector((state: rootState) => state.data.dbData);
+  const backSound = useSelector((state: rootState) => state.data.backSound);
   const [count, setCount] = useState(0);
   const [words, setWords] = useState(data[0].Word);
   const [newWord, setNewWord] = useState('');
@@ -59,6 +67,7 @@ const Word: React.FC<Props> = ({navigation}) => {
     loop(wordToShow, characters);
   };
 
+  const dispatch = useDispatch();
   const showData = async () => {
     try {
       clearAllTimeouts();
@@ -92,10 +101,71 @@ const Word: React.FC<Props> = ({navigation}) => {
     }
   };
 
+  useEffect(() => {
+    !backSound.word ? playsound(music, [...newWord]) : null;
+  }, [backSound]);
   const delay = (ms: number) => {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
+  const appState = useRef(AppState.currentState);
+  useEffect(() => {
+    const handleStateChange = async (nextState: AppStateStatus) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextState == 'active'
+      ) {
+        if (page == 'word') {
+          await playsound(music, [...newWord]);
+        }
+      }
+      appState.current = nextState;
+      if (appState.current === 'background') {
+        console.log('gone background');
 
+        await resetPlayer();
+      }
+    };
+
+    const unsubscribe = AppState.addEventListener('change', handleStateChange);
+
+    return () => {
+      unsubscribe.remove();
+    };
+  }, []);
+  const [addedPractice, setAddPractice] = useState<dbData>([]);
+  const setForPractice = async (item: dbItem) => {
+    const practiceItemsStr = await AsyncStorage.getItem(
+      grade === 'tblWord' ? 'gradeA' : 'gradeB',
+    );
+
+    const practiceItems: dbData = JSON.parse(
+      practiceItemsStr !== null ? practiceItemsStr : '[]',
+    ) as dbData;
+
+    const isItemPresent = practiceItems.some(
+      practiceItem => practiceItem.ID === item.ID,
+    );
+
+    let updatedItems: dbData;
+
+    if (isItemPresent) {
+      updatedItems = practiceItems.filter(
+        practiceItem => practiceItem.ID !== item.ID,
+      );
+    } else {
+      updatedItems = [...practiceItems, item];
+    }
+
+    await AsyncStorage.setItem(
+      grade === 'tblWord' ? 'gradeA' : 'gradeB',
+      JSON.stringify(updatedItems),
+    );
+
+    setAddPractice(updatedItems);
+  };
+  const getRed = () => {
+    return addedPractice.some(item => item.ID == data[count].ID);
+  };
   return (
     <ImageBackground
       source={
@@ -105,7 +175,20 @@ const Word: React.FC<Props> = ({navigation}) => {
       }
       style={styles.container}
       resizeMode="stretch">
-      <Header />
+      <Header
+        onLeftPress={async () => {
+          await TrackPlayer.reset();
+          dispatch({
+            type: 'sightwords/backSound',
+            payload: {...backSound, word: true},
+          });
+          navigation.navigate('setting');
+        }}
+        practice={getRed()}
+        onRightPress={() => {
+          setForPractice(data[count]);
+        }}
+      />
       <View style={styles.textContainer}>
         <Text style={styles.txt}>{words}</Text>
         <Text

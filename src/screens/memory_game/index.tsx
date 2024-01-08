@@ -18,12 +18,13 @@ import {dbData, dbItem} from '../../types';
 import player from '../../utils/player';
 import rightSound from '../../utils/rightSound';
 import pickRandomOptions from '../../utils/randomotions';
+import * as Animatable from 'react-native-animatable';
 type Props = StackScreenProps<StackNavigationParams, 'memory'>;
 
 const Memory: React.FC<Props> = ({navigation}) => {
   const data = useSelector((state: rootState) => state.data.dbData);
-  console.log('thiss is from ', JSON.stringify(data));
-
+  const [isHard, setIsHard] = useState(false);
+  const [zoom, setZoom] = useState('zoomIn');
   const delay = (ms: number) => {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
@@ -34,7 +35,10 @@ const Memory: React.FC<Props> = ({navigation}) => {
   };
 
   const [options, setOptions] = useState<dbData>(
-    pickRandomOptions(createDuplicate([...pickRandomOptions([...data], 3)]), 6),
+    pickRandomOptions(
+      createDuplicate([...pickRandomOptions([...data], isHard ? 6 : 3)]),
+      isHard ? 12 : 6,
+    ),
   );
   const [selected, setSelected] = useState<dbItem>();
   const [selectedeIndex, setSelectedIndex] = useState<number[]>([]);
@@ -60,12 +64,12 @@ const Memory: React.FC<Props> = ({navigation}) => {
     }
 
     if (selected?.ID == item.ID) {
-      if ([...righIndex, index, ...prevArray].length >= 6) {
+      if ([...righIndex, index, ...prevArray].length >= options.length) {
         player([rightSound[6]]);
         await delay(2000);
         let random = pickRandomOptions(
-          createDuplicate([...pickRandomOptions([...data], 3)]),
-          6,
+          createDuplicate([...pickRandomOptions([...data], isHard ? 6 : 3)]),
+          isHard ? 12 : 6,
         );
         setOptions(random);
         setRinghtIndex([]);
@@ -94,59 +98,115 @@ const Memory: React.FC<Props> = ({navigation}) => {
       style={styles.container}
       resizeMode="stretch"
       source={require('../../asset/images/a1.png')}>
-      <Header
-        page="find"
-        onLeftPress={() => {
-          navigation.navigate('setting');
-        }}
-        onRightPress={() => {
-          Alert.alert('something');
-        }}
-        onCenterPress={() => {
-          null;
-        }}
-      />
-      <View style={styles.cardContainer}>
-        <FlatList
-          data={options}
-          keyExtractor={(item, index) => index.toString()}
-          numColumns={2}
-          renderItem={({item, index}) => (
-            <TouchableOpacity
-              onPress={() => praisedItem(item, index, selectedeIndex)}
-              disabled={
-                selectedeIndex.includes(index) || righIndex.includes(index)
-              }
-              style={styles.card}>
-              {!righIndex.includes(index) ? (
-                <>
-                  {!cloud.includes(index) ? (
-                    <Image
-                      resizeMode="contain"
-                      source={require('../../asset/images/cloudsmall.png')}
-                      style={styles.optionImage}
-                    />
-                  ) : null}
-
-                  <Text
-                    style={[
-                      styles.txt,
-                      {color: righIndex.includes(index) ? 'blue' : 'black'},
-                    ]}>
-                    {item.Word}
-                  </Text>
-                </>
-              ) : null}
-            </TouchableOpacity>
-          )}
+      <Animatable.View animation={zoom} style={styles.container}>
+        <Header
+          page="find"
+          isMuted
+          onLeftPress={() => {
+            navigation.navigate('setting');
+          }}
+          disabled
+          onRightPress={async () => {
+            setZoom('zoomOut');
+            await delay(500);
+            let random = pickRandomOptions(
+              createDuplicate([
+                ...pickRandomOptions([...data], !isHard ? 6 : 3),
+              ]),
+              !isHard ? 12 : 6,
+            );
+            setOptions(random);
+            setIsHard(!isHard);
+            setZoom('zoomIn');
+          }}
+          isHard={isHard}
+          onCenterPress={() => {
+            null;
+          }}
         />
-      </View>
+        <View style={styles.cardContainer}>
+          {!isHard ? (
+            <FlatList
+              key={'-'}
+              data={options}
+              keyExtractor={(item, index) => index.toString()}
+              numColumns={2}
+              renderItem={({item, index}) => (
+                <TouchableOpacity
+                  onPress={() => praisedItem(item, index, selectedeIndex)}
+                  disabled={
+                    selectedeIndex.includes(index) || righIndex.includes(index)
+                  }
+                  style={styles.card}>
+                  {!righIndex.includes(index) ? (
+                    <>
+                      {!cloud.includes(index) ? (
+                        <Image
+                          resizeMode="contain"
+                          source={require('../../asset/images/cloudsmall.png')}
+                          style={styles.optionImage}
+                        />
+                      ) : null}
 
-      <Image
-        style={styles.home}
-        resizeMode="contain"
-        source={require('../../asset/images/hmbtn.png')}
-      />
+                      <Text
+                        style={[
+                          styles.txt,
+                          {color: righIndex.includes(index) ? 'blue' : 'black'},
+                        ]}>
+                        {item.Word}
+                      </Text>
+                    </>
+                  ) : null}
+                </TouchableOpacity>
+              )}
+            />
+          ) : (
+            <FlatList
+              key={'#'}
+              data={options}
+              keyExtractor={(item, index) => index.toString()}
+              numColumns={3}
+              renderItem={({item, index}) => (
+                <TouchableOpacity
+                  onPress={() => praisedItem(item, index, selectedeIndex)}
+                  disabled={
+                    selectedeIndex.includes(index) || righIndex.includes(index)
+                  }
+                  style={styles.card2}>
+                  {!righIndex.includes(index) ? (
+                    <>
+                      {!cloud.includes(index) ? (
+                        <Image
+                          resizeMode="contain"
+                          source={require('../../asset/images/cloudsmall.png')}
+                          style={styles.optionImage}
+                        />
+                      ) : null}
+
+                      <Text
+                        style={[
+                          styles.txt,
+                          {color: righIndex.includes(index) ? 'blue' : 'black'},
+                        ]}>
+                        {item.Word}
+                      </Text>
+                    </>
+                  ) : null}
+                </TouchableOpacity>
+              )}
+            />
+          )}
+        </View>
+        <TouchableOpacity
+          onPress={() => navigation.reset({index: 0, routes: [{name: 'home'}]})}
+          style={styles.homeContainer}>
+          <Image
+            style={styles.home}
+            resizeMode="contain"
+            source={require('../../asset/images/hmbtn.png')}
+          />
+        </TouchableOpacity>
+      </Animatable.View>
     </ImageBackground>
   );
 };

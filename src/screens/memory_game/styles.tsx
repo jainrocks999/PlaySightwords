@@ -15,6 +15,15 @@ export default StyleSheet.create({
     marginHorizontal: wp(2),
     marginVertical: wp(1),
   },
+  card2: {
+    height: hp(10),
+    width: wp(28),
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: wp(2),
+    marginVertical: wp(1),
+  },
   txt: {
     fontSize: wp(6),
     color: 'black',
@@ -30,11 +39,15 @@ export default StyleSheet.create({
     width: '85%',
     zIndex: 1,
   },
-  home: {
+  homeContainer: {
     position: 'absolute',
     right: wp(-5),
-    bottom: hp(16.2),
-    height: hp(13),
-    width: wp(40),
+    bottom: hp(16),
+    height: hp(12),
+    width: wp(35),
+  },
+  home: {
+    height: '100%',
+    width: '100%',
   },
 });

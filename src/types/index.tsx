@@ -9,3 +9,6 @@ export interface dbItem {
   Sentence: string;
   Level: string;
 }
+export type random = {
+  random: boolean;
+};
