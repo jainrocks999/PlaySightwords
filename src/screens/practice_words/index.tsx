@@ -43,6 +43,7 @@ const Practice: React.FC<Props> = () => {
     };
     await player([music]);
   };
+
   return (
     <ImageBackground
       resizeMode="stretch"
