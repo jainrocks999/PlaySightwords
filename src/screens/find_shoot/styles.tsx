@@ -28,6 +28,7 @@ export default StyleSheet.create({
     fontSize: wp(8),
     color: 'black',
     fontWeight: 'bold',
+    alignSelf: 'center',
   },
   cloud: {
     height: '100%',
@@ -62,10 +63,12 @@ export default StyleSheet.create({
     width: wp(35),
   },
   btn: {
-    height: hp(6),
+    height: hp(7),
     width: wp(40),
     alignSelf: 'flex-end',
     marginRight: wp(2),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   btn2: {
     alignSelf: 'center',

@@ -28,6 +28,8 @@ const Setting: React.FC<Props> = ({navigation}) => {
     getGrade();
   }, []);
   const dispatch = useDispatch();
+  console.log('this is backSOund', backSound);
+
   useEffect(() => {
     const handleBackButton = () => {
       let shouldBack = false;
@@ -40,13 +42,15 @@ const Setting: React.FC<Props> = ({navigation}) => {
             payload: {...backSound, [key]: false},
           });
           shouldBack = true;
-          return;
         }
       }
+
       if (shouldBack) {
         navigation.goBack();
+        return true;
       }
-      return true;
+
+      return false;
     };
 
     const backHandler = BackHandler.addEventListener(
@@ -57,7 +61,7 @@ const Setting: React.FC<Props> = ({navigation}) => {
     return () => {
       backHandler.remove();
     };
-  }, []);
+  }, [backSound, dispatch, navigation]);
 
   const getGrade = async () => {
     setISRandom(randomform);
@@ -82,7 +86,7 @@ const Setting: React.FC<Props> = ({navigation}) => {
 
     await AsyncStorage.setItem('grade', grad);
     await AsyncStorage.setItem('random', JSON.stringify(random));
-
+    let isGOBack = false;
     for (let key in backSound) {
       let validKey = key as keyof typeof backSound;
       if (backSound[validKey]) {
@@ -90,9 +94,11 @@ const Setting: React.FC<Props> = ({navigation}) => {
           type: 'sightwords/backSound',
           payload: {...backSound, [key]: false},
         });
-        navigation.goBack();
-        return;
+        isGOBack = true;
       }
+    }
+    if (isGOBack) {
+      navigation.goBack();
     }
   };
 

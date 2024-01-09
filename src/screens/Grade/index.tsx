@@ -41,7 +41,7 @@ const Grade: React.FC<Props> = ({navigation}) => {
         resizeMode="stretch">
         <TouchableOpacity
           onPress={() => {
-            getGrade('tblWord');
+            getGrade('tblWordG2'); //tblWord
           }}
           style={[styles.card, {marginTop: hp(15), marginRight: wp(10)}]}>
           <Image
@@ -52,7 +52,7 @@ const Grade: React.FC<Props> = ({navigation}) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
-            getGrade('tblWordG2');
+            getGrade('tblWord'); //tblWordG2
           }}
           style={[styles.card, {marginLeft: wp(10), marginTop: 5}]}>
           <Image

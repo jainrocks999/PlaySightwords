@@ -8,6 +8,8 @@ import {
   Animated,
   AppState,
   AppStateStatus,
+  FlatList,
+  BackHandler,
 } from 'react-native';
 import {StackScreenProps} from '@react-navigation/stack';
 import {StackNavigationParams} from '../../components/navigation';
@@ -15,7 +17,7 @@ import styles from './styles';
 import Header from '../../components/Header';
 import {useDispatch, useSelector} from 'react-redux';
 import type {rootState} from '../../redux';
-import {FlatList} from 'react-native-gesture-handler';
+
 import {widthPrecent, widthPrecent as wp} from '../../utils/ResponsiveScreen';
 import {dbData} from '../../types';
 import {setupPlayer} from '../../utils/Setup';
@@ -26,7 +28,9 @@ import pickRandomOptions from '../../utils/randomotions';
 import {heightPercent as hp} from '../../utils/ResponsiveScreen';
 import * as Animatable from 'react-native-animatable';
 import resetPlayer from '../../utils/resetPlayer';
-const AnimatedFlatlist = Animated.createAnimatedComponent(FlatList);
+const AnimatedFlatlist = Animated.createAnimatedComponent(
+  FlatList as new () => FlatList<dbData>,
+);
 type Props = StackScreenProps<StackNavigationParams, 'find'>;
 const Find: React.FC<Props> = ({navigation}) => {
   const page = useSelector((state: rootState) => state.data.page);
@@ -182,7 +186,25 @@ const Find: React.FC<Props> = ({navigation}) => {
       unsubscribe.remove();
     };
   }, []);
+  useEffect(() => {
+    const handleBackButton = () => {
+      resetPlayer();
+      dispatch({
+        type: 'sightwords/resetbackSound',
+      });
+      navigation.reset({index: 0, routes: [{name: 'home'}]});
+      return true;
+    };
 
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackButton,
+    );
+
+    return () => {
+      backHandler.remove();
+    };
+  }, []);
   return (
     <ImageBackground
       source={require('../../asset/images/a5.png')}
@@ -193,7 +215,7 @@ const Find: React.FC<Props> = ({navigation}) => {
           page="find"
           isMuted={false}
           onLeftPress={async () => {
-            await TrackPlayer.reset();
+            await resetPlayer();
             dispatch({
               type: 'sightwords/backSound',
               payload: {...backSound, find: true},
@@ -267,15 +289,13 @@ const Find: React.FC<Props> = ({navigation}) => {
                 : require('../../asset/images/repeat.png')
             }>
             {!isHard ? (
-              <Animatable.Text
-                animation={set}
-                duration={1000}
+              <Text
                 style={[
                   styles.txt,
                   {color: 'white', fontSize: widthPrecent(6)},
                 ]}>
-                {word}
-              </Animatable.Text>
+                {'raju'}
+              </Text>
             ) : null}
           </ImageBackground>
         </TouchableOpacity>
@@ -288,7 +308,10 @@ const Find: React.FC<Props> = ({navigation}) => {
 
         <TouchableOpacity
           onPress={async () => {
-            await TrackPlayer.reset();
+            await resetPlayer();
+            dispatch({
+              type: 'sightwords/resetbackSound',
+            });
             navigation.reset({index: 0, routes: [{name: 'home'}]});
           }}
           style={styles.homeBtn}>

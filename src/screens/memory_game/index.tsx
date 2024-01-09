@@ -1,17 +1,18 @@
 import {
   Alert,
+  BackHandler,
   Image,
   ImageBackground,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
 import {StackNavigationParams} from '../../components/navigation';
 import styles from './styles';
 import Header from '../../components/Header';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {rootState} from '../../redux';
 import {FlatList} from 'react-native-gesture-handler';
 import {dbData, dbItem} from '../../types';
@@ -19,6 +20,7 @@ import player from '../../utils/player';
 import rightSound from '../../utils/rightSound';
 import pickRandomOptions from '../../utils/randomotions';
 import * as Animatable from 'react-native-animatable';
+import resetPlayer from '../../utils/resetPlayer';
 type Props = StackScreenProps<StackNavigationParams, 'memory'>;
 
 const Memory: React.FC<Props> = ({navigation}) => {
@@ -28,9 +30,9 @@ const Memory: React.FC<Props> = ({navigation}) => {
   const delay = (ms: number) => {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
+  const backSound = useSelector((state: rootState) => state.data.backSound);
   const createDuplicate = (array: dbData) => {
     const duplicateArray = array.flatMap(item => [item, item]);
-
     return duplicateArray;
   };
 
@@ -93,6 +95,26 @@ const Memory: React.FC<Props> = ({navigation}) => {
       }
     }
   };
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const handleBackButton = () => {
+      resetPlayer();
+      dispatch({
+        type: 'sightwords/resetbackSound',
+      });
+      navigation.reset({index: 0, routes: [{name: 'home'}]});
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackButton,
+    );
+
+    return () => {
+      backHandler.remove();
+    };
+  }, []);
   return (
     <ImageBackground
       style={styles.container}
@@ -103,6 +125,10 @@ const Memory: React.FC<Props> = ({navigation}) => {
           page="find"
           isMuted
           onLeftPress={() => {
+            dispatch({
+              type: 'sightwords/backSound',
+              payload: {...backSound, memory: true},
+            });
             navigation.navigate('setting');
           }}
           disabled

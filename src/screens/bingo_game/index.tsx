@@ -8,6 +8,7 @@ import {
   Button,
   AppState,
   AppStateStatus,
+  BackHandler,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
@@ -329,6 +330,25 @@ const Bingo: React.FC<Props> = ({navigation}) => {
       unsubscribe.remove();
     };
   }, []);
+  useEffect(() => {
+    const handleBackButton = () => {
+      resetPlayer();
+      dispatch({
+        type: 'sightwords/resetbackSound',
+      });
+      navigation.reset({index: 0, routes: [{name: 'home'}]});
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackButton,
+    );
+
+    return () => {
+      backHandler.remove();
+    };
+  }, []);
   return (
     <ImageBackground
       style={styles.container}
@@ -350,8 +370,10 @@ const Bingo: React.FC<Props> = ({navigation}) => {
         isHard={false}
         disabled={false}
         onRightPress={async () => {
-          await TrackPlayer.reset();
-
+          await resetPlayer();
+          dispatch({
+            type: 'sightwords/resetbackSound',
+          });
           navigation.reset({index: 0, routes: [{name: 'home'}]});
         }}
         page="bingo"

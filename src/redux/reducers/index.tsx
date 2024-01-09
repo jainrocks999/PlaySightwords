@@ -4,10 +4,11 @@ const initialState = {
   dbData: [] as dbData,
   random: {random: false} as random,
   backSound: {
-    word: true,
-    find: true,
-    memory: true,
-    bingo: true,
+    word: false,
+    find: false,
+    memory: false,
+    bingo: false,
+    home: false,
   },
   page: 'home',
   grade: 'tblWord',
@@ -16,9 +17,23 @@ const reducer = createSlice({
   name: 'sightwords',
   initialState,
   reducers: {
-    getDataFromdb: (state, action) => {
-      state.dbData = action.payload;
-      return state;
+    getDataFromdb: (state, action: {payload: dbData}) => {
+      return {
+        ...state,
+        dbData: action.payload.filter(item =>
+          item?.ID
+            ? item
+            : {
+                Color: '',
+                Grade: '',
+                ID: -1,
+                Word: '',
+                Live: '',
+                Sentence: '',
+                Level: '',
+              },
+        ),
+      };
     },
     setRendom: (state, action) => {
       state.random = action.payload;
@@ -26,6 +41,17 @@ const reducer = createSlice({
     },
     backSound: (state, action) => {
       state.backSound = action.payload;
+      return state;
+    },
+    resetbackSound: (state, action) => {
+      state.backSound = {
+        word: false,
+        find: false,
+        memory: false,
+        bingo: false,
+        home: true,
+      };
+
       return state;
     },
     setPageChange: (state, action) => {

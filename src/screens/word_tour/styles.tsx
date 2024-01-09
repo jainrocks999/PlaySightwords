@@ -62,7 +62,7 @@ export default StyleSheet.create({
     height: hp(12),
     width: hp(12),
     position: 'absolute',
-    bottom: hp(16.6),
+    bottom: hp(16),
     right: wp(0),
     zIndex: 1,
   },

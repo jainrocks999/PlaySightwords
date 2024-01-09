@@ -4,6 +4,7 @@ import {
   ImageBackground,
   Image,
   TouchableOpacity,
+  BackHandler,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
@@ -13,8 +14,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {dbData, dbItem} from '../../types';
 import {FlatList} from 'react-native-gesture-handler';
 import player from '../../utils/player';
+import resetPlayer from '../../utils/resetPlayer';
+import {useDispatch} from 'react-redux';
 type Props = StackScreenProps<StackNavigationParams, 'practice'>;
-const Practice: React.FC<Props> = () => {
+const Practice: React.FC<Props> = ({navigation}) => {
   const [grade, setGrade] = useState('gradeA');
   const [data, setData] = useState<dbData>();
   useEffect(() => {
@@ -43,7 +46,26 @@ const Practice: React.FC<Props> = () => {
     };
     await player([music]);
   };
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const handleBackButton = () => {
+      resetPlayer();
+      dispatch({
+        type: 'sightwords/resetbackSound',
+      });
+      navigation.reset({index: 0, routes: [{name: 'home'}]});
+      return true;
+    };
 
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackButton,
+    );
+
+    return () => {
+      backHandler.remove();
+    };
+  }, []);
   return (
     <ImageBackground
       resizeMode="stretch"
@@ -95,26 +117,28 @@ const Practice: React.FC<Props> = () => {
           />
         </TouchableOpacity>
       </View>
-      <View style={styles.listContainer}>
-        <FlatList
-          data={data}
-          keyExtractor={item => item.ID.toString()}
-          renderItem={({item, index}) => (
-            <View style={styles.list}>
-              <Text style={styles.listtxt}>{item.Word}</Text>
-              <TouchableOpacity
-                onPress={() => play(item)}
-                style={styles.adioBtn}>
-                <Image
-                  style={styles.img}
-                  resizeMode="contain"
-                  source={require('../../asset/images/speaker01.png')}
-                />
-              </TouchableOpacity>
-            </View>
-          )}
-        />
-      </View>
+      {data && data?.length > 0 ? (
+        <View style={styles.listContainer}>
+          <FlatList
+            data={data}
+            keyExtractor={item => item.ID.toString()}
+            renderItem={({item, index}) => (
+              <View style={styles.list}>
+                <Text style={styles.listtxt}>{item.Word}</Text>
+                <TouchableOpacity
+                  onPress={() => play(item)}
+                  style={styles.adioBtn}>
+                  <Image
+                    style={styles.img}
+                    resizeMode="contain"
+                    source={require('../../asset/images/speaker01.png')}
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+        </View>
+      ) : null}
     </ImageBackground>
   );
 };

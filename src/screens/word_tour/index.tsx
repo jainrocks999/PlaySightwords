@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   AppState,
   AppStateStatus,
+  BackHandler,
 } from 'react-native';
 import styles from './styles';
 import type {StackScreenProps} from '@react-navigation/stack';
@@ -15,7 +16,6 @@ import Header from '../../components/Header/header';
 import {widthPrecent as wp} from '../../utils/ResponsiveScreen';
 import {useDispatch, useSelector} from 'react-redux';
 import {rootState} from '../../redux';
-import TrackPlayer from 'react-native-track-player';
 import {setupPlayer} from '../../utils/Setup';
 import player from '../../utils/player';
 import resetPlayer from '../../utils/resetPlayer';
@@ -35,12 +35,21 @@ const Word: React.FC<Props> = ({navigation}) => {
   const data = useSelector((state: rootState) => state.data.dbData);
   const backSound = useSelector((state: rootState) => state.data.backSound);
   const [count, setCount] = useState(0);
-  const [words, setWords] = useState(data[0].Word);
+  const [words, setWords] = useState('');
+  useEffect(() => {
+    setWords(data[0].Word);
+  }, []);
   const [newWord, setNewWord] = useState('');
   const [music, setMusic] = useState<music[]>([]);
   const [timeouts, setTimeouts] = useState<any[]>([]);
+  const [spred_word, setSpredWord] = useState('');
   useEffect(() => {
-    showData();
+    const clear = setTimeout(() => {
+      showData();
+    }, 200);
+    return () => {
+      clearTimeout(clear);
+    };
   }, [count]);
   const clearAllTimeouts = () => {
     timeouts.forEach((timeoutId: any) => clearTimeout(timeoutId));
@@ -52,7 +61,7 @@ const Word: React.FC<Props> = ({navigation}) => {
     characters.forEach((item, index) => {
       const timeoutId = setTimeout(() => {
         wordToShow += item;
-        setWords(wordToShow);
+        setSpredWord(wordToShow);
       }, index * 1000);
       newTimeouts.push(timeoutId);
     });
@@ -69,6 +78,7 @@ const Word: React.FC<Props> = ({navigation}) => {
 
   const dispatch = useDispatch();
   const showData = async () => {
+    setBackoundImage(prev => !prev);
     try {
       clearAllTimeouts();
       const isSetup = await setupPlayer();
@@ -100,6 +110,7 @@ const Word: React.FC<Props> = ({navigation}) => {
       console.error('Error in showData:', error);
     }
   };
+  const [backgroundImage, setBackoundImage] = useState(false);
 
   useEffect(() => {
     !backSound.word ? playsound(music, [...newWord]) : null;
@@ -120,8 +131,6 @@ const Word: React.FC<Props> = ({navigation}) => {
       }
       appState.current = nextState;
       if (appState.current === 'background') {
-        console.log('gone background');
-
         await resetPlayer();
       }
     };
@@ -133,14 +142,23 @@ const Word: React.FC<Props> = ({navigation}) => {
     };
   }, []);
   const [addedPractice, setAddPractice] = useState<dbData>([]);
-  const setForPractice = async (item: dbItem) => {
+  useEffect(() => {
+    getPracticeItem();
+  }, []);
+
+  const getPracticeItem = async () => {
     const practiceItemsStr = await AsyncStorage.getItem(
       grade === 'tblWord' ? 'gradeA' : 'gradeB',
     );
 
-    const practiceItems: dbData = JSON.parse(
+    const practiceItems: dbData = (await JSON.parse(
       practiceItemsStr !== null ? practiceItemsStr : '[]',
-    ) as dbData;
+    )) as dbData;
+    setAddPractice(practiceItems);
+  };
+
+  const setForPractice = async (item: dbItem) => {
+    const practiceItems: dbData = [...addedPractice];
 
     const isItemPresent = practiceItems.some(
       practiceItem => practiceItem.ID === item.ID,
@@ -166,10 +184,30 @@ const Word: React.FC<Props> = ({navigation}) => {
   const getRed = () => {
     return addedPractice.some(item => item.ID == data[count].ID);
   };
+  useEffect(() => {
+    const handleBackButton = () => {
+      resetPlayer();
+      dispatch({
+        type: 'sightwords/resetbackSound',
+      });
+      navigation.reset({index: 0, routes: [{name: 'home'}]});
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackButton,
+    );
+
+    return () => {
+      backHandler.remove();
+    };
+  }, []);
+
   return (
     <ImageBackground
       source={
-        count % 2 == 0
+        backgroundImage
           ? require('../../asset/images/a6.png')
           : require('../../asset/images/a4.png')
       }
@@ -177,11 +215,12 @@ const Word: React.FC<Props> = ({navigation}) => {
       resizeMode="stretch">
       <Header
         onLeftPress={async () => {
-          await TrackPlayer.reset();
+          await resetPlayer();
           dispatch({
             type: 'sightwords/backSound',
             payload: {...backSound, word: true},
           });
+          setSpredWord('');
           navigation.navigate('setting');
         }}
         practice={getRed()}
@@ -190,7 +229,7 @@ const Word: React.FC<Props> = ({navigation}) => {
         }}
       />
       <View style={styles.textContainer}>
-        <Text style={styles.txt}>{words}</Text>
+        <Text style={styles.txt}>{spred_word != '' ? spred_word : words}</Text>
         <Text
           style={[
             {
@@ -209,7 +248,7 @@ const Word: React.FC<Props> = ({navigation}) => {
       <View style={styles.btncontainer}>
         <TouchableOpacity
           onPress={() => {
-            loop('', []);
+            setSpredWord('');
             setCount(count - 1);
           }}
           disabled={count == 0 ? true : false}
@@ -240,10 +279,10 @@ const Word: React.FC<Props> = ({navigation}) => {
         <TouchableOpacity
           onPress={() => {
             loop('', []);
+            setSpredWord('');
             setCount(count + 1);
           }}
           disabled={count + 1 == data.length ? true : false}
-          //rightbtns
           style={styles.singleBtncontainer}>
           <Image
             style={styles.btn}
@@ -256,11 +295,21 @@ const Word: React.FC<Props> = ({navigation}) => {
           />
         </TouchableOpacity>
       </View>
-      <Image
-        style={styles.homeIcone}
-        resizeMode="contain"
-        source={require('../../asset/images/hmbtn.png')}
-      />
+      <TouchableOpacity
+        onPress={async () => {
+          await resetPlayer();
+          dispatch({
+            type: 'sightwords/resetbackSound',
+          });
+          navigation.reset({index: 0, routes: [{name: 'home'}]});
+        }}
+        style={styles.homeIcone}>
+        <Image
+          style={styles.btn}
+          resizeMode="contain"
+          source={require('../../asset/images/hmbtn.png')}
+        />
+      </TouchableOpacity>
     </ImageBackground>
   );
 };
