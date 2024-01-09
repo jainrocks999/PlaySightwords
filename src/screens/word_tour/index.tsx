@@ -36,13 +36,14 @@ const Word: React.FC<Props> = ({navigation}) => {
   const backSound = useSelector((state: rootState) => state.data.backSound);
   const [count, setCount] = useState(0);
   const [words, setWords] = useState('');
+  const timeoutsRef = useRef([]);
   useEffect(() => {
     setWords(data[0].Word);
   }, []);
   const [newWord, setNewWord] = useState('');
   const [music, setMusic] = useState<music[]>([]);
   const [timeouts, setTimeouts] = useState<any[]>([]);
-  const [spred_word, setSpredWord] = useState('');
+  const [spred_word, setWordToShow] = useState('');
   useEffect(() => {
     const clear = setTimeout(() => {
       showData();
@@ -52,18 +53,21 @@ const Word: React.FC<Props> = ({navigation}) => {
     };
   }, [count]);
   const clearAllTimeouts = () => {
-    timeouts.forEach((timeoutId: any) => clearTimeout(timeoutId));
-    setTimeouts([]);
+    timeoutsRef.current.forEach(timeoutId => {
+      clearTimeout(timeoutId);
+    });
+    timeoutsRef.current = [];
   };
-  const loop = (wordToShow: string, characters: string[]) => {
+
+  const loop = (characters: string[]) => {
     clearAllTimeouts();
-    let newTimeouts: any[] = [];
+    const newTimeouts: any = [];
     characters.forEach((item, index) => {
       const timeoutId = setTimeout(() => {
-        wordToShow += item;
-        setSpredWord(wordToShow);
+        setWordToShow(prevWord => prevWord + item);
       }, index * 1000);
       newTimeouts.push(timeoutId);
+      timeoutsRef.current.push(timeoutId);
     });
     setTimeouts(newTimeouts);
   };
@@ -72,12 +76,49 @@ const Word: React.FC<Props> = ({navigation}) => {
     await player([arr[0]]);
     await delay(1700);
     await player([arr[1]]);
-    let wordToShow = '';
-    loop(wordToShow, characters);
+    loop(characters);
   };
 
   const dispatch = useDispatch();
+  // const showData = async () => {
+  //   setBackoundImage(prev => !prev);
+  //   try {
+  //     clearAllTimeouts();
+  //     const isSetup = await setupPlayer();
+  //     const word = data[count].Word;
+  //     const music_name = `_${word}.mp3`;
+  //     const speling_name = `_${word}_spelled.mp3`;
+  //     const music = {
+  //       url: `asset:/files/${music_name}`,
+  //       title: word,
+  //       artist: 'eFlashApps',
+  //       artwork: `asset:/files/${music_name}`,
+  //       duration: 0,
+  //     };
+  //     const spelling = {
+  //       url: `asset:/files/${speling_name}`,
+  //       title: word,
+  //       artist: 'eFlashApps',
+  //       artwork: `asset:/files/${speling_name}`,
+  //       duration: 0,
+  //     };
+  //     const arr = [music, spelling];
+  //     setMusic(arr);
+  //     setWords(word);
+  //     setNewWord(word);
+  //     if (isSetup) {
+  //       playsound(arr, [...word]);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error in showData:', error);
+  //   }
+  // };
   const showData = async () => {
+    // Add your logic here to set up player and obtain data
+    // ...
+
+    // Assuming 'isSetup', 'data', 'setupPlayer()', and 'player()' are defined
+
     setBackoundImage(prev => !prev);
     try {
       clearAllTimeouts();
@@ -104,7 +145,7 @@ const Word: React.FC<Props> = ({navigation}) => {
       setWords(word);
       setNewWord(word);
       if (isSetup) {
-        playsound(arr, [...word]);
+        await playsound(arr, [...word]);
       }
     } catch (error) {
       console.error('Error in showData:', error);
@@ -220,7 +261,7 @@ const Word: React.FC<Props> = ({navigation}) => {
             type: 'sightwords/backSound',
             payload: {...backSound, word: true},
           });
-          setSpredWord('');
+          setWordToShow('');
           navigation.navigate('setting');
         }}
         practice={getRed()}
@@ -248,7 +289,7 @@ const Word: React.FC<Props> = ({navigation}) => {
       <View style={styles.btncontainer}>
         <TouchableOpacity
           onPress={() => {
-            setSpredWord('');
+            setWordToShow('');
             setCount(count - 1);
           }}
           disabled={count == 0 ? true : false}
@@ -265,7 +306,7 @@ const Word: React.FC<Props> = ({navigation}) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
-            loop('', []);
+            loop([]);
             setWords(newWord);
             playsound(music, [...newWord]);
           }}
@@ -278,8 +319,8 @@ const Word: React.FC<Props> = ({navigation}) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
-            loop('', []);
-            setSpredWord('');
+            loop([]);
+            setWordToShow('');
             setCount(count + 1);
           }}
           disabled={count + 1 == data.length ? true : false}
@@ -315,3 +356,4 @@ const Word: React.FC<Props> = ({navigation}) => {
 };
 
 export default Word;
+const myarray = ['raju', 'brade', 'deley'];
