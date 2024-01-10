@@ -341,9 +341,7 @@ const Word: React.FC<Props> = ({navigation}) => {
       <TouchableOpacity
         onPress={async () => {
           await clearAllTimeouts();
-          // dispatch({
-          //   type: 'sightwords/resetbackSound',
-          // });
+
           navigation.reset({index: 0, routes: [{name: 'home'}]});
         }}
         style={styles.homeIcone}>
