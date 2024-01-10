@@ -21,6 +21,7 @@ import player from '../../utils/player';
 import resetPlayer from '../../utils/resetPlayer';
 import {dbData, dbItem} from '../../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import TrackPlayer from 'react-native-track-player';
 type Props = StackScreenProps<StackNavigationParams, 'word'>;
 type music = {
   url: string;
@@ -31,23 +32,47 @@ type music = {
 };
 const Word: React.FC<Props> = ({navigation}) => {
   const grade = useSelector((state: rootState) => state.data.grade);
+  const random = useSelector((state: rootState) => state.data.random);
   const page = useSelector((state: rootState) => state.data.page);
-  const data = useSelector((state: rootState) => state.data.dbData);
+  const datas = useSelector((state: rootState) => state.data.dbData);
+  const [data, setData] = useState<dbData>(datas);
   const backSound = useSelector((state: rootState) => state.data.backSound);
-  const [count, setCount] = useState(0);
-  const [words, setWords] = useState('');
-  const timeoutsRef = useRef([]);
+  const [count, setCount] = useState<number>(0);
+  const [words, setWords] = useState<string>('');
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const [delays, setDealy] = useState<number>(500);
   useEffect(() => {
-    setWords(data[0].Word);
+    const clear = setTimeout(() => {
+      setCount(0);
+      const sortedData = datas
+        .slice()
+        .sort((a, b) =>
+          a.Word.toLowerCase().localeCompare(b.Word.toLowerCase()),
+        );
+      const randomlySortedData = data.slice().sort(() => Math.random() - 0.5);
+      setData(random.random ? randomlySortedData : sortedData);
+    }, 500);
+    return () => {
+      clearTimeout(clear);
+    };
+  }, [random]);
+
+  useEffect(() => {
+    const clear = setTimeout(() => {
+      setWords(data[0].Word);
+    }, 500);
+    return () => {
+      clearTimeout(clear);
+    };
   }, []);
   const [newWord, setNewWord] = useState('');
   const [music, setMusic] = useState<music[]>([]);
-  const [timeouts, setTimeouts] = useState<any[]>([]);
   const [spred_word, setWordToShow] = useState('');
   useEffect(() => {
     const clear = setTimeout(() => {
       showData();
-    }, 200);
+      setDealy(200);
+    }, delays);
     return () => {
       clearTimeout(clear);
     };
@@ -58,67 +83,45 @@ const Word: React.FC<Props> = ({navigation}) => {
     });
     timeoutsRef.current = [];
   };
-
+  const stopSoundAndCleartime = async () => {
+    clearAllTimeouts();
+    const times = setTimeout(async () => {
+      await resetPlayer();
+    }, 700);
+    return () => {
+      clearTimeout(times);
+    };
+  };
+  const [navigations, setNavigation] = useState(false);
   const loop = (characters: string[]) => {
     clearAllTimeouts();
+
     const newTimeouts: any = [];
     characters.forEach((item, index) => {
-      const timeoutId = setTimeout(() => {
+      const timeoutId: NodeJS.Timeout = setTimeout(() => {
         setWordToShow(prevWord => prevWord + item);
       }, index * 1000);
       newTimeouts.push(timeoutId);
       timeoutsRef.current.push(timeoutId);
     });
-    setTimeouts(newTimeouts);
   };
   const playsound = async (arr: music[], characters: string[]) => {
     clearAllTimeouts();
-    await player([arr[0]]);
-    await delay(1700);
-    await player([arr[1]]);
-    loop(characters);
+    await TrackPlayer.reset();
+    await TrackPlayer.add(arr[0]);
+    await TrackPlayer.play();
+    const ref = setTimeout(async () => {
+      await TrackPlayer.reset();
+      await TrackPlayer.add(arr[1]);
+      await TrackPlayer.play();
+      loop(characters);
+    }, 1700);
+    timeoutsRef.current.push(ref);
   };
 
   const dispatch = useDispatch();
-  // const showData = async () => {
-  //   setBackoundImage(prev => !prev);
-  //   try {
-  //     clearAllTimeouts();
-  //     const isSetup = await setupPlayer();
-  //     const word = data[count].Word;
-  //     const music_name = `_${word}.mp3`;
-  //     const speling_name = `_${word}_spelled.mp3`;
-  //     const music = {
-  //       url: `asset:/files/${music_name}`,
-  //       title: word,
-  //       artist: 'eFlashApps',
-  //       artwork: `asset:/files/${music_name}`,
-  //       duration: 0,
-  //     };
-  //     const spelling = {
-  //       url: `asset:/files/${speling_name}`,
-  //       title: word,
-  //       artist: 'eFlashApps',
-  //       artwork: `asset:/files/${speling_name}`,
-  //       duration: 0,
-  //     };
-  //     const arr = [music, spelling];
-  //     setMusic(arr);
-  //     setWords(word);
-  //     setNewWord(word);
-  //     if (isSetup) {
-  //       playsound(arr, [...word]);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error in showData:', error);
-  //   }
-  // };
+
   const showData = async () => {
-    // Add your logic here to set up player and obtain data
-    // ...
-
-    // Assuming 'isSetup', 'data', 'setupPlayer()', and 'player()' are defined
-
     setBackoundImage(prev => !prev);
     try {
       clearAllTimeouts();
@@ -154,11 +157,10 @@ const Word: React.FC<Props> = ({navigation}) => {
   const [backgroundImage, setBackoundImage] = useState(false);
 
   useEffect(() => {
+    setWordToShow('');
     !backSound.word ? playsound(music, [...newWord]) : null;
   }, [backSound]);
-  const delay = (ms: number) => {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  };
+
   const appState = useRef(AppState.currentState);
   useEffect(() => {
     const handleStateChange = async (nextState: AppStateStatus) => {
@@ -227,10 +229,10 @@ const Word: React.FC<Props> = ({navigation}) => {
   };
   useEffect(() => {
     const handleBackButton = () => {
-      resetPlayer();
-      dispatch({
-        type: 'sightwords/resetbackSound',
-      });
+      clearAllTimeouts();
+      // dispatch({
+      //   type: 'sightwords/resetbackSound',
+      // });
       navigation.reset({index: 0, routes: [{name: 'home'}]});
       return true;
     };
@@ -256,12 +258,13 @@ const Word: React.FC<Props> = ({navigation}) => {
       resizeMode="stretch">
       <Header
         onLeftPress={async () => {
-          await resetPlayer();
+          setWordToShow('');
+          await stopSoundAndCleartime();
           dispatch({
             type: 'sightwords/backSound',
             payload: {...backSound, word: true},
           });
-          setWordToShow('');
+
           navigation.navigate('setting');
         }}
         practice={getRed()}
@@ -306,8 +309,8 @@ const Word: React.FC<Props> = ({navigation}) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
-            loop([]);
             setWords(newWord);
+            setWordToShow('');
             playsound(music, [...newWord]);
           }}
           style={styles.singleBtncontainer2}>
@@ -319,7 +322,6 @@ const Word: React.FC<Props> = ({navigation}) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
-            loop([]);
             setWordToShow('');
             setCount(count + 1);
           }}
@@ -338,10 +340,10 @@ const Word: React.FC<Props> = ({navigation}) => {
       </View>
       <TouchableOpacity
         onPress={async () => {
-          await resetPlayer();
-          dispatch({
-            type: 'sightwords/resetbackSound',
-          });
+          await clearAllTimeouts();
+          // dispatch({
+          //   type: 'sightwords/resetbackSound',
+          // });
           navigation.reset({index: 0, routes: [{name: 'home'}]});
         }}
         style={styles.homeIcone}>

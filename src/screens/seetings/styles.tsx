@@ -28,24 +28,32 @@ export default StyleSheet.create({
     width: wp(60),
     alignItems: 'center',
     justifyContent: 'space-between',
-
     paddingLeft: wp(1),
   },
   random: {
     fontSize: wp(6),
     color: 'black',
-    fontWeight: '100',
+    fontWeight: '400',
   },
   bckImage: {
     height: hp(6.7),
     width: wp(22),
-
+    backgroundColor: 'white',
     overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+    borderRadius: wp(1),
   },
   saveBtn: {
     height: hp(7.5),
     width: wp(30),
     alignSelf: 'center',
     marginTop: wp(15),
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+    backgroundColor: 'white',
+    borderRadius: wp(1),
   },
 });

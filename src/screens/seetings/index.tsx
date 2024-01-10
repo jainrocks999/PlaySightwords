@@ -83,6 +83,10 @@ const Setting: React.FC<Props> = ({navigation}) => {
       type: 'sightwords/setGrade',
       payload: grad,
     });
+    dispatch({
+      type: 'sightwords/setRendom',
+      payload: random,
+    });
 
     await AsyncStorage.setItem('grade', grad);
     await AsyncStorage.setItem('random', JSON.stringify(random));
@@ -140,11 +144,7 @@ const Setting: React.FC<Props> = ({navigation}) => {
         <TouchableOpacity
           onPress={() => setISRandom(prev => ({random: !prev?.random}))}
           style={styles.bckImage}>
-          <ImageBackground
-            style={styles.image}
-            source={require('../../asset/images/whtbtns.png')}>
-            <Text style={styles.random}>{random?.random ? 'ON' : 'OFF'}</Text>
-          </ImageBackground>
+          <Text style={styles.random}>{random?.random ? 'ON' : 'OFF'}</Text>
         </TouchableOpacity>
       </View>
       <TouchableOpacity
@@ -152,11 +152,7 @@ const Setting: React.FC<Props> = ({navigation}) => {
           save();
         }}
         style={styles.saveBtn}>
-        <ImageBackground
-          style={styles.image}
-          source={require('../../asset/images/whtbtns.png')}>
-          <Text style={styles.random}>{'SAVE'}</Text>
-        </ImageBackground>
+        <Text style={styles.random}>{'SAVE'}</Text>
       </TouchableOpacity>
     </ImageBackground>
   );

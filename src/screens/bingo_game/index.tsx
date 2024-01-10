@@ -41,6 +41,7 @@ const Bingo: React.FC<Props> = ({navigation}) => {
   const [update, setUpdate] = useState(false);
   const [selectedRowOrColumn, setSelectedRowOrColumn] = useState<number[]>([]);
   const [show, setshow] = useState(false);
+  const [delaytime, setdelayTime] = useState(500);
   const [clickon, setCLickon] = useState(true);
   const delay = (ms: number) => {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -49,7 +50,13 @@ const Bingo: React.FC<Props> = ({navigation}) => {
   const secondanim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    askQuestion();
+    const clear = setTimeout(() => {
+      askQuestion();
+      setdelayTime(0);
+    }, delaytime);
+    return () => {
+      clearTimeout(clear);
+    };
   }, [update]);
   const getQuestion = () => {
     return new Promise<number>(resolve => {
