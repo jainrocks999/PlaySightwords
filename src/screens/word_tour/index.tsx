@@ -17,7 +17,6 @@ import {widthPrecent as wp} from '../../utils/ResponsiveScreen';
 import {useDispatch, useSelector} from 'react-redux';
 import {rootState} from '../../redux';
 import {setupPlayer} from '../../utils/Setup';
-import player from '../../utils/player';
 import resetPlayer from '../../utils/resetPlayer';
 import {dbData, dbItem} from '../../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -55,7 +54,7 @@ const Word: React.FC<Props> = ({navigation}) => {
     return () => {
       clearTimeout(clear);
     };
-  }, [random]);
+  }, [random, datas]);
 
   useEffect(() => {
     const clear = setTimeout(() => {
@@ -64,11 +63,12 @@ const Word: React.FC<Props> = ({navigation}) => {
     return () => {
       clearTimeout(clear);
     };
-  }, []);
+  }, [data]);
   const [newWord, setNewWord] = useState('');
   const [music, setMusic] = useState<music[]>([]);
   const [spred_word, setWordToShow] = useState('');
   useEffect(() => {
+    setWordToShow('');
     const clear = setTimeout(() => {
       showData();
       setDealy(200);
@@ -76,7 +76,7 @@ const Word: React.FC<Props> = ({navigation}) => {
     return () => {
       clearTimeout(clear);
     };
-  }, [count]);
+  }, [count, data]);
   const clearAllTimeouts = () => {
     timeoutsRef.current.forEach(timeoutId => {
       clearTimeout(timeoutId);
@@ -92,15 +92,16 @@ const Word: React.FC<Props> = ({navigation}) => {
       clearTimeout(times);
     };
   };
-  const [navigations, setNavigation] = useState(false);
+
   const loop = (characters: string[]) => {
     clearAllTimeouts();
 
     const newTimeouts: any = [];
+    setWordToShow('');
     characters.forEach((item, index) => {
       const timeoutId: NodeJS.Timeout = setTimeout(() => {
         setWordToShow(prevWord => prevWord + item);
-      }, index * 1000);
+      }, index * 700);
       newTimeouts.push(timeoutId);
       timeoutsRef.current.push(timeoutId);
     });

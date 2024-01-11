@@ -1,10 +1,10 @@
-import {Image, StyleSheet, Text, View} from 'react-native';
+import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {
   heightPercent as hp,
   widthPrecent as wp,
 } from '../../utils/ResponsiveScreen';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useSelector} from 'react-redux';
 import {rootState} from '../../redux';
@@ -16,6 +16,7 @@ type props = {
   onRightPress: () => void;
   onCenterPress: () => void;
   isMuted: boolean;
+  isRightDisabled: boolean;
 };
 
 const Header: React.FC<props> = ({
@@ -26,6 +27,7 @@ const Header: React.FC<props> = ({
   isHard,
   disabled,
   isMuted,
+  isRightDisabled,
 }) => {
   const grade = useSelector((state: rootState) => state.data.grade) as
     | 'tblWord'
@@ -64,7 +66,10 @@ const Header: React.FC<props> = ({
           resizeMode="contain"
         />
       </TouchableOpacity>
-      <TouchableOpacity onPress={onRightPress} style={styles.headerItem}>
+      <TouchableOpacity
+        disabled={isRightDisabled}
+        onPress={onRightPress}
+        style={styles.headerItem}>
         <Image
           style={[
             styles.icon,

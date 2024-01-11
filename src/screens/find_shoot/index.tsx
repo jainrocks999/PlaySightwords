@@ -28,6 +28,7 @@ import pickRandomOptions from '../../utils/randomotions';
 import {heightPercent as hp} from '../../utils/ResponsiveScreen';
 import * as Animatable from 'react-native-animatable';
 import resetPlayer from '../../utils/resetPlayer';
+import MyModal from '../../components/Modal';
 const AnimatedFlatlist = Animated.createAnimatedComponent(
   FlatList as new () => FlatList<dbData>,
 );
@@ -41,18 +42,19 @@ const Find: React.FC<Props> = ({navigation}) => {
   const [isHard, setIsHard] = useState(false);
   const [word, setWord] = useState('');
   const [zoom, setZoom] = useState('zoomIn');
-  const [options, setOptions] = useState<dbData>(
-    pickRandomOptions([...data], isHard ? 5 : 3),
-  );
+  const [options, setOptions] = useState<dbData>([]);
+  useEffect(() => {
+    setOptions(pickRandomOptions([...data], isHard ? 5 : 3));
+  }, [data]);
   const animatedValue = useRef(new Animated.Value(0)).current;
 
   const translateX = animatedValue.interpolate({
     inputRange: [-10, 0, 10],
     outputRange: [-5, 0, 5],
   });
-
+  const [changeDIsable, setChangeDisabled] = useState(false);
   const [set, setSet] = useState('zoomOut');
-
+  const timeRef = useRef<NodeJS.Timeout>();
   const delay = (ms: number) => {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
@@ -97,8 +99,9 @@ const Find: React.FC<Props> = ({navigation}) => {
   useEffect(() => {
     !backSound.find ? repeate() : null;
   }, [backSound]);
-
+  const [disabled, setDiSabled] = useState<number[]>([]);
   const presseOption = async (index: number, array: dbData) => {
+    setChangeDisabled(true);
     let gunsoud = {
       url: require('../../asset/sounds/gun.mp3'), //`asset:/files/clickon.mp3`,
       title: 'gun',
@@ -117,38 +120,44 @@ const Find: React.FC<Props> = ({navigation}) => {
     await player([gunsoud]);
     await delay(300);
     if (index == rightAns) {
+      setDiSabled(!isHard ? [0, 1, 2] : [0, 1, 2, 3, 4, 5]);
+
       setPickImage(require('../../asset/images/bang.png'));
       await player(pickRandomOptions(rightSound, 5)[3]);
-      await delay(3000);
-      let remdomData = pickRandomOptions([...data], isHard ? 5 : 3);
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(animatedValue, {
-            toValue: 10,
-            duration: 20,
-            useNativeDriver: true,
-          }),
-          Animated.timing(animatedValue, {
-            toValue: -10,
-            duration: 10,
-            useNativeDriver: true,
-          }),
-          Animated.timing(animatedValue, {
-            toValue: 0,
-            duration: 10,
-            useNativeDriver: true,
-          }),
-        ]),
-        {
-          iterations: 5,
-        },
-      ).start(() => {
-        setOptions(remdomData);
-        setSet('zoomOut');
-        animatedValue.setValue(0);
-      });
+      const timeRefs = setTimeout(() => {
+        let remdomData = pickRandomOptions([...data], isHard ? 5 : 3);
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(animatedValue, {
+              toValue: 10,
+              duration: 20,
+              useNativeDriver: true,
+            }),
+            Animated.timing(animatedValue, {
+              toValue: -10,
+              duration: 10,
+              useNativeDriver: true,
+            }),
+            Animated.timing(animatedValue, {
+              toValue: 0,
+              duration: 10,
+              useNativeDriver: true,
+            }),
+          ]),
+          {
+            iterations: 5,
+          },
+        ).start(() => {
+          setOptions(remdomData);
+          setSet('zoomOut');
+          setChangeDisabled(false);
+          animatedValue.setValue(0);
+          setDiSabled([]);
+        });
 
-      setPickImage('');
+        setPickImage('');
+      });
+      timeRef.current = timeRefs;
     } else {
       setPickImage(require('../../asset/images/cross.png'));
       await player([strings]);
@@ -205,11 +214,29 @@ const Find: React.FC<Props> = ({navigation}) => {
       backHandler.remove();
     };
   }, []);
+  const [isVisible, setIsvisible] = useState(false);
+  const handleLevle = async () => {
+    if (!changeDIsable) {
+      setZoom('zoomOut');
+      await delay(500);
+      setOptions(pickRandomOptions([...data], !isHard ? 5 : 3));
+      setIsHard(!isHard);
+
+      setZoom('zoomIn');
+    } else {
+      setIsvisible(true);
+    }
+  };
   return (
     <ImageBackground
       source={require('../../asset/images/a5.png')}
       style={styles.container}
       resizeMode="stretch">
+      <MyModal
+        isVisible={isVisible}
+        onPress={(value: boolean) => setIsvisible(value)}
+        txt="You cannot change levels until  your answer is correct."
+      />
       <Animatable.View animation={zoom} style={styles.container}>
         <Header
           page="find"
@@ -220,15 +247,13 @@ const Find: React.FC<Props> = ({navigation}) => {
               type: 'sightwords/backSound',
               payload: {...backSound, find: true},
             });
+
             navigation.navigate('setting');
           }}
+          isRightDisabled={false}
           isHard={isHard}
           onRightPress={async () => {
-            setZoom('zoomOut');
-            await delay(500);
-            setOptions(pickRandomOptions([...data], !isHard ? 5 : 3));
-            setIsHard(!isHard);
-            setZoom('zoomIn');
+            handleLevle();
           }}
           disabled={false}
           onCenterPress={() => null}
@@ -257,7 +282,8 @@ const Find: React.FC<Props> = ({navigation}) => {
                 ]}>
                 <TouchableOpacity
                   onPress={() => presseOption(index, [...options])}
-                  style={[styles.cloudContainer]}>
+                  style={[styles.cloudContainer]}
+                  disabled={disabled.includes(index)}>
                   <ImageBackground
                     style={styles.cloud}
                     resizeMode="stretch"
@@ -294,7 +320,7 @@ const Find: React.FC<Props> = ({navigation}) => {
                   styles.txt,
                   {color: 'white', fontSize: widthPrecent(6)},
                 ]}>
-                {'raju'}
+                {options[rightAns]?.Word}
               </Text>
             ) : null}
           </ImageBackground>

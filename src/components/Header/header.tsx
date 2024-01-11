@@ -1,10 +1,10 @@
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {View, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import React from 'react';
 import {
   widthPrecent as wp,
   heightPercent as hp,
 } from '../../utils/ResponsiveScreen';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+
 import {
   NavigationAction,
   NavigationProp,
