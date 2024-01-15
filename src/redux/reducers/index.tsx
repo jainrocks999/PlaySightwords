@@ -8,7 +8,7 @@ const initialState = {
     find: false,
     memory: false,
     bingo: false,
-    home: false,
+    home: true,
   },
   page: 'home',
   grade: 'tblWord',

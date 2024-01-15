@@ -22,6 +22,8 @@ import pickRandomOptions from '../../utils/randomotions';
 import * as Animatable from 'react-native-animatable';
 import resetPlayer from '../../utils/resetPlayer';
 import MyModal from '../../components/Modal';
+import showAdd, {Addsid} from '../../utils/ads';
+import {GAMBannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 type Props = StackScreenProps<StackNavigationParams, 'memory'>;
 
 const Memory: React.FC<Props> = ({navigation}) => {
@@ -31,12 +33,13 @@ const Memory: React.FC<Props> = ({navigation}) => {
   const delay = (ms: number) => {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
+
   const backSound = useSelector((state: rootState) => state.data.backSound);
   const createDuplicate = (array: dbData) => {
     const duplicateArray = array.flatMap(item => [item, item]);
     return duplicateArray;
   };
-
+  const [count, setCount] = useState(1);
   const [options, setOptions] = useState<dbData>([]);
   useEffect(() => {
     setOptions(
@@ -72,6 +75,8 @@ const Memory: React.FC<Props> = ({navigation}) => {
     }
 
     if (selected?.ID == item.ID) {
+      setCount(prev => prev + 1);
+
       if ([...righIndex, index, ...prevArray].length >= options.length) {
         player([rightSound[6]]);
         await delay(2000);
@@ -99,6 +104,7 @@ const Memory: React.FC<Props> = ({navigation}) => {
         await delay(500);
         setCloud([]);
         setSelected({} as dbItem);
+        setCount(prev => prev + 1);
       }
     }
   };
@@ -122,6 +128,12 @@ const Memory: React.FC<Props> = ({navigation}) => {
       backHandler.remove();
     };
   }, []);
+  useEffect(() => {
+    if (count % 15 == 0) {
+      showAdd();
+      setCount(1);
+    }
+  }, [count]);
   const [visible, setIsvisible] = useState(false);
   const handleLevel = async () => {
     if (!isDisabled) {
@@ -254,6 +266,15 @@ const Memory: React.FC<Props> = ({navigation}) => {
           />
         </TouchableOpacity>
       </Animatable.View>
+      <View style={{position: 'absolute', bottom: 0}}>
+        <GAMBannerAd
+          unitId={Addsid.BANNER}
+          sizes={[BannerAdSize.FULL_BANNER]}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }}
+        />
+      </View>
     </ImageBackground>
   );
 };

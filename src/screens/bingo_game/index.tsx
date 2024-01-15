@@ -20,10 +20,10 @@ import randomotions from '../../utils/randomotions';
 import Header from '../../components/Header';
 import {FlatList} from 'react-native-gesture-handler';
 import {dbData} from '../../types';
-
+import showAdd, {Addsid} from '../../utils/ads';
 import player from '../../utils/player';
 import rightSound from '../../utils/rightSound';
-
+import {GAMBannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 import FastImage from 'react-native-fast-image';
 import TrackPlayer from 'react-native-track-player';
 import resetPlayer from '../../utils/resetPlayer';
@@ -52,7 +52,7 @@ const Bingo: React.FC<Props> = ({navigation}) => {
   };
 
   const secondanim = useRef(new Animated.Value(0)).current;
-
+  const [count, setCount] = useState(1);
   useEffect(() => {
     const clear = setTimeout(() => {
       askQuestion();
@@ -72,7 +72,12 @@ const Bingo: React.FC<Props> = ({navigation}) => {
       resolve(rightAnsArr.length < 16 ? index : -1);
     });
   };
-
+  useEffect(() => {
+    if (count % 10 == 0) {
+      showAdd();
+      setCount(0);
+    }
+  }, [count]);
   const askQuestion = async () => {
     const rightIndex = await getQuestion();
     const sound_name = `_${options[rightIndex]?.Word}.mp3`;
@@ -246,6 +251,7 @@ const Bingo: React.FC<Props> = ({navigation}) => {
       }
     } else {
       setIncorrect(prev => prev + 1);
+      setCount(prev => prev + 1);
       await player([
         {
           url: 'asset:/files/string.wav',
@@ -327,7 +333,7 @@ const Bingo: React.FC<Props> = ({navigation}) => {
         nextState == 'active'
       ) {
         if (page == 'bingo') {
-          repeate(rightAns);
+          // repeate(rightAns);
         }
       }
       appState.current = nextState;
@@ -388,6 +394,7 @@ const Bingo: React.FC<Props> = ({navigation}) => {
           navigation.reset({index: 0, routes: [{name: 'home'}]});
         }}
         page="bingo"
+        isRightDisabled={false}
       />
       <View style={styles.listCotainer}>
         {show && (
@@ -460,6 +467,15 @@ const Bingo: React.FC<Props> = ({navigation}) => {
         resizeMode="contain"
         source={require('../../asset/images/clock.png')}
       />
+      <View style={{position: 'absolute', bottom: 0}}>
+        <GAMBannerAd
+          unitId={Addsid.BANNER}
+          sizes={[BannerAdSize.FULL_BANNER]}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }}
+        />
+      </View>
     </ImageBackground>
   );
 };

@@ -71,4 +71,11 @@ export default StyleSheet.create({
     height: hp(3),
     width: hp(3),
   },
+  home: {
+    height: hp(14),
+    width: hp(14),
+    alignSelf: 'center',
+    position: 'absolute',
+    bottom: hp(10),
+  },
 });

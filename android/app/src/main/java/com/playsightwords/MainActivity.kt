@@ -1,4 +1,4 @@
-package com.newplaysightwordsnew
+package com.playsightwords
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

@@ -18,9 +18,11 @@ import {useSelector} from 'react-redux';
 import {rootState} from '../../redux';
 import player from '../../utils/player';
 import resetPlayer from '../../utils/resetPlayer';
-import {useIsFocused} from '@react-navigation/native';
+import showAdd from '../../utils/ads';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import TrackPlayer from 'react-native-track-player';
+
+import {GAMBannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
+import {Addsid} from '../../utils/ads';
 type Props = StackScreenProps<StackNavigationParams, 'home'>;
 const Home: React.FC<Props> = ({navigation}) => {
   const [muted, setMuted] = useState(false);
@@ -60,6 +62,7 @@ const Home: React.FC<Props> = ({navigation}) => {
   useEffect(() => {
     playSound();
   }, [muted]);
+
   const getMuted = async () => {
     const getsMuted = await AsyncStorage.getItem('muted');
     const validMuted: boolean =
@@ -122,6 +125,7 @@ const Home: React.FC<Props> = ({navigation}) => {
           onRightPress={() => {
             navigation.navigate('setting');
           }}
+          isRightDisabled={false}
         />
         <View style={styles.imagescontainer}>
           <FlatList
@@ -132,6 +136,7 @@ const Home: React.FC<Props> = ({navigation}) => {
                 onPress={async () => {
                   await resetPlayer();
                   let valid = item.page as keyof StackNavigationParams;
+                  // showAdd();
                   navigation.navigate(valid);
                 }}
                 style={styles.listImage}>
@@ -148,6 +153,15 @@ const Home: React.FC<Props> = ({navigation}) => {
           <Image
             style={styles.image}
             source={require('../../asset/images/eflashappipad.png')}
+          />
+        </View>
+        <View style={{position: 'absolute', bottom: 0}}>
+          <GAMBannerAd
+            unitId={Addsid.BANNER}
+            sizes={[BannerAdSize.FULL_BANNER]}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
           />
         </View>
       </ImageBackground>

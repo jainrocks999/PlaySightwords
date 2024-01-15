@@ -29,6 +29,8 @@ import {heightPercent as hp} from '../../utils/ResponsiveScreen';
 import * as Animatable from 'react-native-animatable';
 import resetPlayer from '../../utils/resetPlayer';
 import MyModal from '../../components/Modal';
+import showAdd, {Addsid} from '../../utils/ads';
+import {GAMBannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 const AnimatedFlatlist = Animated.createAnimatedComponent(
   FlatList as new () => FlatList<dbData>,
 );
@@ -43,6 +45,7 @@ const Find: React.FC<Props> = ({navigation}) => {
   const [word, setWord] = useState('');
   const [zoom, setZoom] = useState('zoomIn');
   const [options, setOptions] = useState<dbData>([]);
+
   useEffect(() => {
     setOptions(pickRandomOptions([...data], isHard ? 5 : 3));
   }, [data]);
@@ -99,8 +102,13 @@ const Find: React.FC<Props> = ({navigation}) => {
   useEffect(() => {
     !backSound.find ? repeate() : null;
   }, [backSound]);
+  const [count, setCount] = useState(1);
   const [disabled, setDiSabled] = useState<number[]>([]);
   const presseOption = async (index: number, array: dbData) => {
+    if (count % 10 == 0) {
+      showAdd();
+      setCount(0);
+    }
     setChangeDisabled(true);
     let gunsoud = {
       url: require('../../asset/sounds/gun.mp3'), //`asset:/files/clickon.mp3`,
@@ -121,7 +129,7 @@ const Find: React.FC<Props> = ({navigation}) => {
     await delay(300);
     if (index == rightAns) {
       setDiSabled(!isHard ? [0, 1, 2] : [0, 1, 2, 3, 4, 5]);
-
+      setCount(prev => prev + 1);
       setPickImage(require('../../asset/images/bang.png'));
       await player(pickRandomOptions(rightSound, 5)[3]);
       const timeRefs = setTimeout(() => {
@@ -163,6 +171,7 @@ const Find: React.FC<Props> = ({navigation}) => {
       await player([strings]);
       await delay(1200);
       setPickImage('');
+      setCount(prev => prev + 1);
     }
   };
 
@@ -179,7 +188,7 @@ const Find: React.FC<Props> = ({navigation}) => {
         nextState == 'active'
       ) {
         if (page == 'find') {
-          repeate();
+          // repeate();
         }
       }
       appState.current = nextState;
@@ -221,8 +230,10 @@ const Find: React.FC<Props> = ({navigation}) => {
       await delay(500);
       setOptions(pickRandomOptions([...data], !isHard ? 5 : 3));
       setIsHard(!isHard);
-
       setZoom('zoomIn');
+      showAdd();
+      setCount(1);
+      showAdd();
     } else {
       setIsvisible(true);
     }
@@ -348,6 +359,15 @@ const Find: React.FC<Props> = ({navigation}) => {
           />
         </TouchableOpacity>
       </Animatable.View>
+      <View style={{position: 'absolute', bottom: 0}}>
+        <GAMBannerAd
+          unitId={Addsid.BANNER}
+          sizes={[BannerAdSize.FULL_BANNER]}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }}
+        />
+      </View>
     </ImageBackground>
   );
 };
