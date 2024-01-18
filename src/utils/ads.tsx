@@ -5,7 +5,7 @@ import {
 } from 'react-native-google-mobile-ads';
 export const Addsid = {
   BANNER: TestIds.BANNER, //'ca-app-pub-3339897183017333/9093285589',
-  Interstitial: TestIds.INTERSTITIAL, // 'ca-app-pub-3339897183017333/1570018788',
+  Interstitial: TestIds.INTERSTITIAL, //'ca-app-pub-3339897183017333/6778947585', // 'ca-app-pub-3339897183017333/1570018788',
 };
 
 const requestOption = {
@@ -28,3 +28,6 @@ export default () => {
   interstitial.load();
   return unsubscribe;
 };
+
+// Sight Words First with Word Bingo
+// com.playsightwordsNew

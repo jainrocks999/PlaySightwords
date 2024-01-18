@@ -6,7 +6,7 @@ import showAdd from './src/utils/ads';
 const App = () => {
   const doublePressTimeout = useRef<number | null>(null);
   const getAdd = () => {
-    showAdd();
+    // showAdd();
     BackHandler.exitApp();
   };
   useEffect(() => {

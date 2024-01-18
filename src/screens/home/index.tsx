@@ -18,7 +18,7 @@ import {useSelector} from 'react-redux';
 import {rootState} from '../../redux';
 import player from '../../utils/player';
 import resetPlayer from '../../utils/resetPlayer';
-import showAdd from '../../utils/ads';
+import {showAdd} from '../../utils/ads';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {GAMBannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
@@ -123,7 +123,8 @@ const Home: React.FC<Props> = ({navigation}) => {
           isHard={false}
           onCenterPress={() => null}
           onRightPress={() => {
-            navigation.navigate('setting');
+            // navigation.navigate('setting');
+            // showAdd();
           }}
           isRightDisabled={false}
         />
@@ -156,13 +157,13 @@ const Home: React.FC<Props> = ({navigation}) => {
           />
         </View>
         <View style={{position: 'absolute', bottom: 0}}>
-          <GAMBannerAd
+          {/* <GAMBannerAd
             unitId={Addsid.BANNER}
             sizes={[BannerAdSize.FULL_BANNER]}
             requestOptions={{
               requestNonPersonalizedAdsOnly: true,
             }}
-          />
+          /> */}
         </View>
       </ImageBackground>
     </View>

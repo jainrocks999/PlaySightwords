@@ -74,7 +74,7 @@ const Bingo: React.FC<Props> = ({navigation}) => {
   };
   useEffect(() => {
     if (count % 10 == 0) {
-      showAdd();
+      // showAdd();
       setCount(0);
     }
   }, [count]);

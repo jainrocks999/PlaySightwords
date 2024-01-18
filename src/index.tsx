@@ -1,4 +1,4 @@
-import {LogBox, View} from 'react-native';
+import {LogBox, StatusBar, View} from 'react-native';
 import React from 'react';
 import Navigation from './components/navigation';
 import {Provider} from 'react-redux';
@@ -8,6 +8,7 @@ const Root = () => {
   return (
     <View style={{flex: 1}}>
       <Provider store={sightStore}>
+        <StatusBar backgroundColor="#75d5f4" />
         <Navigation />
       </Provider>
     </View>

@@ -106,7 +106,7 @@ const Find: React.FC<Props> = ({navigation}) => {
   const [disabled, setDiSabled] = useState<number[]>([]);
   const presseOption = async (index: number, array: dbData) => {
     if (count % 10 == 0) {
-      showAdd();
+      // showAdd();
       setCount(0);
     }
     setChangeDisabled(true);
@@ -231,9 +231,9 @@ const Find: React.FC<Props> = ({navigation}) => {
       setOptions(pickRandomOptions([...data], !isHard ? 5 : 3));
       setIsHard(!isHard);
       setZoom('zoomIn');
-      showAdd();
+      // showAdd();
       setCount(1);
-      showAdd();
+      // showAdd();
     } else {
       setIsvisible(true);
     }
