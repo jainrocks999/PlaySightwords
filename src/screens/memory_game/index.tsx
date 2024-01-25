@@ -130,7 +130,7 @@ const Memory: React.FC<Props> = ({navigation}) => {
   }, []);
   useEffect(() => {
     if (count % 15 == 0) {
-      // showAdd();
+      showAdd();
       setCount(1);
     }
   }, [count]);
@@ -146,6 +146,7 @@ const Memory: React.FC<Props> = ({navigation}) => {
       setOptions(random);
       setIsHard(!isHard);
       setZoom('zoomIn');
+      showAdd();
     } else {
       setIsvisible(true);
     }
@@ -266,15 +267,15 @@ const Memory: React.FC<Props> = ({navigation}) => {
           />
         </TouchableOpacity>
       </Animatable.View>
-      {/* <View style={{position: 'absolute', bottom: 0}}>
+      <View style={{position: 'absolute', bottom: 0}}>
         <GAMBannerAd
           unitId={Addsid.BANNER}
           sizes={[BannerAdSize.FULL_BANNER]}
           requestOptions={{
             requestNonPersonalizedAdsOnly: true,
           }}
-        /> 
-      </View>*/}
+        />
+      </View>
     </ImageBackground>
   );
 };

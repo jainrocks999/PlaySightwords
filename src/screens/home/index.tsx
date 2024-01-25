@@ -123,7 +123,7 @@ const Home: React.FC<Props> = ({navigation}) => {
           isHard={false}
           onCenterPress={() => null}
           onRightPress={() => {
-            // navigation.navigate('setting');
+            navigation.navigate('setting');
             // showAdd();
           }}
           isRightDisabled={false}
@@ -157,13 +157,13 @@ const Home: React.FC<Props> = ({navigation}) => {
           />
         </View>
         <View style={{position: 'absolute', bottom: 0}}>
-          {/* <GAMBannerAd
+          <GAMBannerAd
             unitId={Addsid.BANNER}
             sizes={[BannerAdSize.FULL_BANNER]}
             requestOptions={{
               requestNonPersonalizedAdsOnly: true,
             }}
-          /> */}
+          />
         </View>
       </ImageBackground>
     </View>
