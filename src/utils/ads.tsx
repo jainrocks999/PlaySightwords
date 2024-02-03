@@ -29,4 +29,4 @@ export default () => {
 };
 
 // Sight Words First with Word Bingo
-// com.playsightwordsNew
+// com.playsightwordslatest

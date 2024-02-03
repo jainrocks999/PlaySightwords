@@ -18,7 +18,7 @@ import {useSelector} from 'react-redux';
 import {rootState} from '../../redux';
 import player from '../../utils/player';
 import resetPlayer from '../../utils/resetPlayer';
-import {showAdd} from '../../utils/ads';
+// import {showAdd} from '../../utils/ads';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {GAMBannerAd, BannerAdSize} from 'react-native-google-mobile-ads';

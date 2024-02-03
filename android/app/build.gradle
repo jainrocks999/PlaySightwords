@@ -74,13 +74,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.playsightwordsNew"
+    namespace "com.playsightwordslatest"
     defaultConfig {
-        applicationId "com.playsightwordsNew"
+        applicationId "com.playsightwordslatest"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "3.0"
+        versionCode 1
+        versionName "1.0"
         resConfigs "en", "US"
     }
     signingConfigs {
