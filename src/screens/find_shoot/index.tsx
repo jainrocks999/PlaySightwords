@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -31,11 +31,13 @@ import resetPlayer from '../../utils/resetPlayer';
 import MyModal from '../../components/Modal';
 import showAdd, {Addsid} from '../../utils/ads';
 import {GAMBannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
+import {IAPContext} from '../../Context';
 const AnimatedFlatlist = Animated.createAnimatedComponent(
   FlatList as new () => FlatList<dbData>,
 );
 type Props = StackScreenProps<StackNavigationParams, 'find'>;
 const Find: React.FC<Props> = ({navigation}) => {
+  const IAP = useContext(IAPContext);
   const page = useSelector((state: rootState) => state.data.page);
   const backSound = useSelector((state: rootState) => state.data.backSound);
   const data = useSelector((state: rootState) => state.data.dbData);
@@ -106,7 +108,7 @@ const Find: React.FC<Props> = ({navigation}) => {
   const [disabled, setDiSabled] = useState<number[]>([]);
   const presseOption = async (index: number, array: dbData) => {
     if (count % 10 == 0) {
-      showAdd();
+      !IAP?.hasPurchased && showAdd();
       setCount(0);
     }
     setChangeDisabled(true);
@@ -187,7 +189,7 @@ const Find: React.FC<Props> = ({navigation}) => {
         appState.current.match(/inactive|background/) &&
         nextState == 'active'
       ) {
-        if (page == 'find') {
+        if (page.current == 'find') {
           // repeate();
         }
       }
@@ -231,7 +233,7 @@ const Find: React.FC<Props> = ({navigation}) => {
       setOptions(pickRandomOptions([...data], !isHard ? 5 : 3));
       setIsHard(!isHard);
       setZoom('zoomIn');
-      showAdd();
+      !IAP?.hasPurchased && showAdd();
       setCount(1);
     } else {
       setIsvisible(true);
@@ -358,15 +360,17 @@ const Find: React.FC<Props> = ({navigation}) => {
           />
         </TouchableOpacity>
       </Animatable.View>
-      <View style={{position: 'absolute', bottom: 0}}>
-        <GAMBannerAd
-          unitId={Addsid.BANNER}
-          sizes={[BannerAdSize.FULL_BANNER]}
-          requestOptions={{
-            requestNonPersonalizedAdsOnly: true,
-          }}
-        />
-      </View>
+      {!IAP?.hasPurchased && (
+        <View style={{position: 'absolute', bottom: 0}}>
+          <GAMBannerAd
+            unitId={Addsid.BANNER}
+            sizes={[BannerAdSize.ANCHORED_ADAPTIVE_BANNER]}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
+        </View>
+      )}
     </ImageBackground>
   );
 };

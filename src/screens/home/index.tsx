@@ -6,8 +6,10 @@ import {
   Alert,
   AppState,
   AppStateStatus,
+  Text,
+  Linking,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import Header from '../../components/Header';
 import styles from './styles';
 import {FlatList} from 'react-native-gesture-handler';
@@ -23,8 +25,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {GAMBannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 import {Addsid} from '../../utils/ads';
+import {IAPContext} from '../../Context';
+import PurchasedeModal from '../../components/PurchaseModal';
 type Props = StackScreenProps<StackNavigationParams, 'home'>;
 const Home: React.FC<Props> = ({navigation}) => {
+  const IAP = useContext(IAPContext);
   const [muted, setMuted] = useState(false);
   const page = useSelector((state: rootState) => state.data.page);
   const data = useSelector((state: rootState) =>
@@ -85,7 +90,7 @@ const Home: React.FC<Props> = ({navigation}) => {
         appState.current.match(/inactive|background/) &&
         nextState == 'active'
       ) {
-        if (page == 'home') {
+        if (page.current == 'home') {
           playSound();
         }
       }
@@ -107,8 +112,45 @@ const Home: React.FC<Props> = ({navigation}) => {
     await AsyncStorage.setItem('muted', JSON.stringify(!muted));
     setMuted(!muted);
   };
+
+  useEffect(() => {
+    page.prev == 'splash' && setAppOpen();
+  }, []);
+
+  const setAppOpen = async () => {
+    try {
+      const countStr = await AsyncStorage.getItem('count');
+      const count = countStr ? JSON.parse(countStr) : 0;
+      console.log('thididid', count);
+      console.log('this', count);
+
+      const newCount = count + 1;
+      await AsyncStorage.setItem('count', JSON.stringify(newCount));
+
+      if (newCount % 5 === 0 && !IAP?.hasPurchased) {
+        setTimeout(() => {
+          IAP?.setVisible(true);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Error accessing AsyncStorage:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
+      <PurchasedeModal
+        visible={IAP?.visible ?? false}
+        onClose={val => {
+          IAP?.setVisible(val);
+        }}
+        onPress={() => {
+          IAP?.requestPurchase();
+        }}
+        onRestore={() => {
+          IAP?.checkPurchases(true);
+        }}
+      />
       <ImageBackground
         style={styles.backImage}
         source={require('../../asset/images/newmainbg.png')}
@@ -150,21 +192,52 @@ const Home: React.FC<Props> = ({navigation}) => {
             )}
           />
         </View>
-        <View style={styles.bottumImage}>
+        <TouchableOpacity
+          onPress={() => {
+            Linking.openURL('https://babyflashcards.com/apps.html');
+          }}
+          style={styles.bottumImage}>
           <Image
             style={styles.image}
             source={require('../../asset/images/eflashappipad.png')}
           />
-        </View>
-        <View style={{position: 'absolute', bottom: 0}}>
-          <GAMBannerAd
-            unitId={Addsid.BANNER}
-            sizes={[BannerAdSize.FULL_BANNER]}
-            requestOptions={{
-              requestNonPersonalizedAdsOnly: true,
+        </TouchableOpacity>
+        {!IAP?.hasPurchased && (
+          <TouchableOpacity
+            onPress={() => {
+              IAP?.setVisible(true);
             }}
-          />
-        </View>
+            style={styles.upgadeBtn}>
+            <ImageBackground
+              style={{
+                height: '100%',
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              source={require('../../asset/images/btnbg.png')}>
+              <Text
+                style={{
+                  color: 'black',
+                  fontWeight: '600',
+                  fontFamily: 'LibreBaskerville-Bold',
+                }}>
+                UPGRADE
+              </Text>
+            </ImageBackground>
+          </TouchableOpacity>
+        )}
+        {!IAP?.hasPurchased && (
+          <View style={{position: 'absolute', bottom: 0}}>
+            <GAMBannerAd
+              unitId={Addsid.BANNER}
+              sizes={[BannerAdSize.FULL_BANNER]}
+              requestOptions={{
+                requestNonPersonalizedAdsOnly: true,
+              }}
+            />
+          </View>
+        )}
       </ImageBackground>
     </View>
   );

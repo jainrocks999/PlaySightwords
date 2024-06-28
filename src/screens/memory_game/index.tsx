@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
 import {StackNavigationParams} from '../../components/navigation';
 import styles from './styles';
@@ -24,9 +24,11 @@ import resetPlayer from '../../utils/resetPlayer';
 import MyModal from '../../components/Modal';
 import showAdd, {Addsid} from '../../utils/ads';
 import {GAMBannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
+import {IAPContext} from '../../Context';
 type Props = StackScreenProps<StackNavigationParams, 'memory'>;
 
 const Memory: React.FC<Props> = ({navigation}) => {
+  const IAP = useContext(IAPContext);
   const data = useSelector((state: rootState) => state.data.dbData);
   const [isHard, setIsHard] = useState(false);
   const [zoom, setZoom] = useState('zoomIn');
@@ -130,7 +132,7 @@ const Memory: React.FC<Props> = ({navigation}) => {
   }, []);
   useEffect(() => {
     if (count % 15 == 0) {
-      showAdd();
+      !IAP?.hasPurchased && showAdd();
       setCount(1);
     }
   }, [count]);
@@ -146,7 +148,7 @@ const Memory: React.FC<Props> = ({navigation}) => {
       setOptions(random);
       setIsHard(!isHard);
       setZoom('zoomIn');
-      showAdd();
+      !IAP?.hasPurchased && showAdd();
     } else {
       setIsvisible(true);
     }
@@ -267,15 +269,17 @@ const Memory: React.FC<Props> = ({navigation}) => {
           />
         </TouchableOpacity>
       </Animatable.View>
-      <View style={{position: 'absolute', bottom: 0}}>
-        <GAMBannerAd
-          unitId={Addsid.BANNER}
-          sizes={[BannerAdSize.FULL_BANNER]}
-          requestOptions={{
-            requestNonPersonalizedAdsOnly: true,
-          }}
-        />
-      </View>
+      {!IAP?.hasPurchased && (
+        <View style={{position: 'absolute', bottom: 0}}>
+          <GAMBannerAd
+            unitId={Addsid.BANNER}
+            sizes={[BannerAdSize.ANCHORED_ADAPTIVE_BANNER]}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
+        </View>
+      )}
     </ImageBackground>
   );
 };

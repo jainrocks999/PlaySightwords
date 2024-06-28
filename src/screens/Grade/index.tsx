@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {
   Image,
   ImageBackground,
@@ -16,9 +16,11 @@ import {StackNavigationParams} from '../../components/navigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import db from '../../utils/db';
 import {useDispatch} from 'react-redux';
+import {IAPContext} from '../../Context';
 
 type Props = StackScreenProps<StackNavigationParams, 'grade'>;
 const Grade: React.FC<Props> = ({navigation}) => {
+  const IAP = useContext(IAPContext);
   const dispatch = useDispatch();
   const getGrade = async (type: string) => {
     await AsyncStorage.setItem('grade', type);

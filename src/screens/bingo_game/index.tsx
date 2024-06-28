@@ -10,7 +10,7 @@ import {
   AppStateStatus,
   BackHandler,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
 import {StackNavigationParams} from '../../components/navigation';
 import styles from './styles';
@@ -27,8 +27,10 @@ import {GAMBannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 import FastImage from 'react-native-fast-image';
 import TrackPlayer from 'react-native-track-player';
 import resetPlayer from '../../utils/resetPlayer';
+import {IAPContext} from '../../Context';
 type Props = StackScreenProps<StackNavigationParams, 'bingo'>;
 const Bingo: React.FC<Props> = ({navigation}) => {
+  const IAP = useContext(IAPContext);
   const page = useSelector((state: rootState) => state.data.page);
   const backSound = useSelector((state: rootState) => state.data.backSound);
   const [seconds, setSeconds] = useState(0);
@@ -74,7 +76,7 @@ const Bingo: React.FC<Props> = ({navigation}) => {
   };
   useEffect(() => {
     if (count % 10 == 0) {
-      showAdd();
+      !IAP?.hasPurchased && showAdd();
       setCount(0);
     }
   }, [count]);
@@ -332,7 +334,7 @@ const Bingo: React.FC<Props> = ({navigation}) => {
         appState.current.match(/inactive|background/) &&
         nextState == 'active'
       ) {
-        if (page == 'bingo') {
+        if (page.current == 'bingo') {
           // repeate(rightAns);
         }
       }
@@ -467,15 +469,17 @@ const Bingo: React.FC<Props> = ({navigation}) => {
         resizeMode="contain"
         source={require('../../asset/images/clock.png')}
       />
-      <View style={{position: 'absolute', bottom: 0}}>
-        <GAMBannerAd
-          unitId={Addsid.BANNER}
-          sizes={[BannerAdSize.FULL_BANNER]}
-          requestOptions={{
-            requestNonPersonalizedAdsOnly: true,
-          }}
-        />
-      </View>
+      {!IAP?.hasPurchased && (
+        <View style={{position: 'absolute', bottom: 0}}>
+          <GAMBannerAd
+            unitId={Addsid.BANNER}
+            sizes={[BannerAdSize.FULL_BANNER]}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
+        </View>
+      )}
     </ImageBackground>
   );
 };

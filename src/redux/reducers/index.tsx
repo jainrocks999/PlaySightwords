@@ -10,7 +10,10 @@ const initialState = {
     bingo: false,
     home: true,
   },
-  page: 'home',
+  page: {
+    prev: 'splash',
+    current: 'home',
+  },
   grade: 'tblWord',
 };
 const reducer = createSlice({
