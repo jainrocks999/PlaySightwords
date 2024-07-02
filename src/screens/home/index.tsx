@@ -139,18 +139,20 @@ const Home: React.FC<Props> = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <PurchasedeModal
-        visible={IAP?.visible ?? false}
-        onClose={val => {
-          IAP?.setVisible(val);
-        }}
-        onPress={() => {
-          IAP?.requestPurchase();
-        }}
-        onRestore={() => {
-          IAP?.checkPurchases(true);
-        }}
-      />
+      {!IAP?.hasPurchased && (
+        <PurchasedeModal
+          visible={IAP?.visible ?? false}
+          onClose={val => {
+            IAP?.setVisible(val);
+          }}
+          onPress={() => {
+            IAP?.requestPurchase();
+          }}
+          onRestore={() => {
+            IAP?.checkPurchases(true);
+          }}
+        />
+      )}
       <ImageBackground
         style={styles.backImage}
         source={require('../../asset/images/newmainbg.png')}

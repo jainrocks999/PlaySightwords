@@ -79,8 +79,8 @@ android {
         applicationId "com.playsightwordslatest"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "1.1"
+        versionCode 5
+        versionName "1.4"
         resConfigs "en", "US"
         missingDimensionStrategy "store", "play"
     }
