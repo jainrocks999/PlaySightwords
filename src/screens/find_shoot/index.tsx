@@ -10,6 +10,7 @@ import {
   AppStateStatus,
   FlatList,
   BackHandler,
+  Dimensions,
 } from 'react-native';
 import {StackScreenProps} from '@react-navigation/stack';
 import {StackNavigationParams} from '../../components/navigation';
@@ -32,6 +33,7 @@ import MyModal from '../../components/Modal';
 import showAdd, {Addsid} from '../../utils/ads';
 import {GAMBannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 import {IAPContext} from '../../Context';
+import { path } from '../../utils/path';
 const AnimatedFlatlist = Animated.createAnimatedComponent(
   FlatList as new () => FlatList<dbData>,
 );
@@ -47,7 +49,9 @@ const Find: React.FC<Props> = ({navigation}) => {
   const [word, setWord] = useState('');
   const [zoom, setZoom] = useState('zoomIn');
   const [options, setOptions] = useState<dbData>([]);
-
+  const { width, height } = Dimensions.get("window");
+  const aspectRatio = height / width;
+  const IsIPAD = aspectRatio < 1.6;
   useEffect(() => {
     setOptions(pickRandomOptions([...data], isHard ? 5 : 3));
   }, [data]);
@@ -68,17 +72,17 @@ const Find: React.FC<Props> = ({navigation}) => {
     const sound_name = `_${option[rightIndex].Word}.mp3`;
     const sound = [
       {
-        url: 'asset:/files/clickon.mp3',
+        url: `${path}clickon.mp3`,
         title: option[rightIndex].Word,
         artist: 'eFlashApps',
-        artwork: `asset:/files/${sound_name}`,
+        artwork: `${path}${sound_name}`,
         duration: 0,
       },
       {
-        url: `asset:/files/${sound_name}`,
+        url: `${path}${sound_name}`,
         title: option[rightIndex].Word,
         artist: 'eFlashApps',
-        artwork: `asset:/files/${sound_name}`,
+        artwork: `${path}${sound_name}`,
         duration: 0,
       },
     ];
@@ -92,10 +96,10 @@ const Find: React.FC<Props> = ({navigation}) => {
   const repeate = () => {
     const sound_name = `_${options[rightAns]?.Word}.mp3`;
     const sound = {
-      url: `asset:/files/${sound_name}`,
+      url: `${path}${sound_name}`,
       title: options[rightAns]?.Word,
       artist: 'eFlashApps',
-      artwork: `asset:/files/${sound_name}`,
+      artwork: `${path}${sound_name}`,
       duration: 0,
     };
     player([sound]);
@@ -113,26 +117,26 @@ const Find: React.FC<Props> = ({navigation}) => {
     }
     setChangeDisabled(true);
     let gunsoud = {
-      url: require('../../asset/sounds/gun.mp3'), //`asset:/files/clickon.mp3`,
+      url: require('../../asset/sounds/gun.mp3'), //`${path}clickon.mp3`,
       title: 'gun',
       artist: 'eFlashApps',
-      artwork: `asset:/files/gun.mp3`,
+      artwork: `${path}gun.mp3`,
       duration: 0,
     };
     let strings = {
-      url: require('../../asset/sounds/string.wav'), //`asset:/files/clickon.mp3`,
+      url: require('../../asset/sounds/string.wav'), //`${path}clickon.mp3`,
       title: 'gun',
       artist: 'eFlashApps',
-      artwork: `asset:/files/string.wav`,
+      artwork: `${path}string.wav`,
       duration: 0,
     };
 
     await player([gunsoud]);
-    await delay(300);
+    await delay(1200);
     if (index == rightAns) {
       setDiSabled(!isHard ? [0, 1, 2] : [0, 1, 2, 3, 4, 5]);
       setCount(prev => prev + 1);
-      setPickImage(require('../../asset/images/bang.png'));
+      // setPickImage(require('../../asset/images/bang.png'));
       await player(pickRandomOptions(rightSound, 5)[3]);
       const timeRefs = setTimeout(() => {
         let remdomData = pickRandomOptions([...data], isHard ? 5 : 3);
@@ -249,6 +253,7 @@ const Find: React.FC<Props> = ({navigation}) => {
         onPress={(value: boolean) => setIsvisible(value)}
         txt="You cannot change levels until  your answer is correct."
       />
+      
       <Animatable.View animation={zoom} style={styles.container}>
         <Header
           page="find"
@@ -288,8 +293,8 @@ const Find: React.FC<Props> = ({navigation}) => {
                 style={[
                   styles.somecontainer,
                   {
-                    top: index % 2 == 1 ? wp(20) : 0,
-                    left: index % 2 == 0 ? wp(6) : 0,
+                    top: index % 2 == 1 ?IsIPAD?wp(13): wp(20) : 0,
+                    left: index % 2 == 0 ?IsIPAD?wp(0): wp(6) : 0,
                   },
                 ]}>
                 <TouchableOpacity

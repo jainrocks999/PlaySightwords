@@ -13,8 +13,7 @@ export default StyleSheet.create({
     alignItems: 'center',
   },
   card: {
-    height: wp(22),
-    width: wp(22),
+  
     marginHorizontal: wp(1),
     marginVertical: wp(1),
     borderRadius: hp(1.5),
@@ -27,7 +26,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
   },
   txt: {
-    fontSize: wp(6),
+    
     color: 'black',
     fontWeight: '500',
   },

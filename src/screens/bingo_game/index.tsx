@@ -9,6 +9,7 @@ import {
   AppState,
   AppStateStatus,
   BackHandler,
+  Dimensions,
 } from 'react-native';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
@@ -28,8 +29,16 @@ import FastImage from 'react-native-fast-image';
 import TrackPlayer from 'react-native-track-player';
 import resetPlayer from '../../utils/resetPlayer';
 import {IAPContext} from '../../Context';
+import { path } from '../../utils/path';
+import {
+  heightPercent as hp,
+  widthPrecent as wp,
+} from '../../utils/ResponsiveScreen';
 type Props = StackScreenProps<StackNavigationParams, 'bingo'>;
 const Bingo: React.FC<Props> = ({navigation}) => {
+  const { width, height } = Dimensions.get("window");
+  const aspectRatio = height / width;
+  const IsIPAD = aspectRatio < 1.6;
   const IAP = useContext(IAPContext);
   const page = useSelector((state: rootState) => state.data.page);
   const backSound = useSelector((state: rootState) => state.data.backSound);
@@ -85,17 +94,17 @@ const Bingo: React.FC<Props> = ({navigation}) => {
     const sound_name = `_${options[rightIndex]?.Word}.mp3`;
     const sound = [
       {
-        url: 'asset:/files/clickon.mp3', //`asset:/files/clickon.mp3`,
+        url: `${path}clickon.mp3`, //`${path}clickon.mp3`,
         title: options[rightIndex]?.Word,
         artist: 'eFlashApps',
-        artwork: `asset:/files/${sound_name}`,
+        artwork: `${path}${sound_name}`,
         duration: 0,
       },
       {
-        url: `asset:/files/${sound_name}`,
+        url: `${path}${sound_name}`,
         title: options[rightIndex]?.Word,
         artist: 'eFlashApps',
-        artwork: `asset:/files/${sound_name}`,
+        artwork: `${path}${sound_name}`,
         duration: 0,
       },
     ];
@@ -157,10 +166,10 @@ const Bingo: React.FC<Props> = ({navigation}) => {
 
     const sound = [
       {
-        url: `asset:/files/${sound_name}`,
+        url: `${path}${sound_name}`,
         title: options[rightIndex]?.Word,
         artist: 'eFlashApps',
-        artwork: `asset:/files/${sound_name}`,
+        artwork: `${path}${sound_name}`,
         duration: 0,
       },
     ];
@@ -254,12 +263,17 @@ const Bingo: React.FC<Props> = ({navigation}) => {
     } else {
       setIncorrect(prev => prev + 1);
       setCount(prev => prev + 1);
+
+      // path = Platform.select({
+      //   android: '${path}',
+      //   ios: RNFS.MainBundlePath + '/files/',
+      // });
       await player([
         {
-          url: 'asset:/files/string.wav',
+          url: `${path}string.wav`,
           title: 'string',
           artist: 'eFlashApps',
-          artwork: 'asset:/files/string.wav',
+          artwork: `${path}string.wav`,
           duration: 0,
         },
       ]);
@@ -423,12 +437,13 @@ const Bingo: React.FC<Props> = ({navigation}) => {
             <TouchableOpacity
               onPress={() => Praised(index)}
               disabled={rightAnsArr.includes(index)}
-              style={styles.card}>
+              style={[styles.card,{  height: IsIPAD?wp(13): wp(22),
+                width:IsIPAD?wp(13): wp(22),}]}>
               {!rightAnsArr.includes(index) ? (
                 <ImageBackground
                   style={styles.btn}
                   source={require('../../asset/images/btnbg.png')}>
-                  <Text style={styles.txt}>{item.Word}</Text>
+                  <Text style={[styles.txt, {fontSize:IsIPAD?wp(4): wp(6)}]}>{item.Word}</Text>
                 </ImageBackground>
               ) : selectedRowOrColumn.includes(index) ? (
                 <FastImage

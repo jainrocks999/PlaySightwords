@@ -23,6 +23,7 @@ export default StyleSheet.create({
     position: 'absolute',
     marginTop: wp(3),
     zIndex: 1,
+  //  borderWidth:1
   },
   txt: {
     fontSize: wp(6.5),

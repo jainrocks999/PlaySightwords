@@ -21,6 +21,7 @@ import MyModal from '../../components/Modal';
 import {GAMBannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 import showAdd, {Addsid} from '../../utils/ads';
 import {IAPContext} from '../../Context';
+import { path } from '../../utils/path';
 type Props = StackScreenProps<StackNavigationParams, 'practice'>;
 const Practice: React.FC<Props> = ({navigation}) => {
   const IAP = useContext(IAPContext);
@@ -28,7 +29,7 @@ const Practice: React.FC<Props> = ({navigation}) => {
   const [data, setData] = useState<dbData>();
   const [isVisible, setIsvisible] = useState(false);
   useEffect(() => {
-    // getDataWithGrade('gradeA');
+     getDataWithGrade('gradeA');
   }, []);
   const getDataWithGrade = async (type: string) => {
     const getData = await AsyncStorage.getItem(type);
@@ -44,10 +45,10 @@ const Practice: React.FC<Props> = ({navigation}) => {
   };
   const play = async (item: dbItem) => {
     const music = {
-      url: `asset:/files/_${item?.Word}.mp3`,
+      url: `${path}_${item?.Word}.mp3`,
       title: item.Word,
       artist: 'eFlashApps',
-      artwork: `asset:/files/_${item?.Word}.mp3`,
+      artwork: `${path}_${item?.Word}.mp3`,
       duration: 0,
     };
     await player([music]);
